@@ -1,0 +1,41 @@
+name: Python Tests
+run-name: Running tests for ${{ github.actor }}
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10.11'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Cache uv
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-${{ hashFiles('**/uv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Run linting
+        run: uv run ruff check .
+
+      - name: Run type checking
+        run: uv run pyrefly check
+
+      - name: Run tests
+        run: uv run pytest -n auto
