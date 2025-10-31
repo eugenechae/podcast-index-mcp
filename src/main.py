@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+import os
 from typing import Any
 
 import httpx
@@ -12,6 +13,17 @@ from podcast_index.client import SearchParams, search_podcasts
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+_api_key = os.getenv("PODCAST_INDEX_API_KEY")
+_api_secret = os.getenv("PODCAST_INDEX_API_SECRET")
+
+if not _api_key or not _api_secret:
+    raise ValueError(
+        "PODCAST_INDEX_API_KEY and PODCAST_INDEX_API_SECRET environment variables must be set"
+    )
+
+API_KEY: str = _api_key
+API_SECRET: str = _api_secret
 
 
 def create_server() -> Server:
@@ -39,14 +51,6 @@ def create_server() -> Server:
                         "q": {
                             "type": "string",
                             "description": "Search query term",
-                        },
-                        "api_key": {
-                            "type": "string",
-                            "description": "Podcast Index API key",
-                        },
-                        "api_secret": {
-                            "type": "string",
-                            "description": "Podcast Index API secret",
                         },
                         "max": {
                             "type": "integer",
@@ -76,7 +80,7 @@ def create_server() -> Server:
                             "description": "Include similar matches",
                         },
                     },
-                    "required": ["q", "api_key", "api_secret"],
+                    "required": ["q"],
                 },
             )
         ]
@@ -97,14 +101,11 @@ async def search_podcasts_tool(arguments: dict[str, Any]) -> list[TextContent]:
     Execute podcast search and format results.
 
     Args:
-        arguments: Tool arguments including query and API credentials
+        arguments: Tool arguments including query and optional filters
 
     Returns:
         List of TextContent with formatted search results
     """
-    api_key = arguments["api_key"]
-    api_secret = arguments["api_secret"]
-
     params = SearchParams(q=arguments["q"])
 
     if "max" in arguments:
@@ -121,7 +122,7 @@ async def search_podcasts_tool(arguments: dict[str, Any]) -> list[TextContent]:
         params["similar"] = arguments["similar"]
 
     try:
-        response = await search_podcasts(api_key, api_secret, params)
+        response = await search_podcasts(API_KEY, API_SECRET, params)
         formatted_result = format_search_results(response)
         return [TextContent(type="text", text=formatted_result)]
 

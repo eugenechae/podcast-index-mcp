@@ -61,8 +61,6 @@ To use this MCP server with Claude Desktop, add the following to your Claude Des
 
 Replace `/absolute/path/to/podcast-index-mcp` with the actual path to this repository.
 
-**Note**: Currently, API credentials are passed via tool arguments. Future versions may support reading from environment variables.
-
 ## Usage
 
 ### Available Tools
@@ -73,8 +71,6 @@ Search for podcasts by term across the Podcast Index database.
 
 **Required Parameters:**
 - `q` (string): Search query term
-- `api_key` (string): Your Podcast Index API key
-- `api_secret` (string): Your Podcast Index API secret
 
 **Optional Parameters:**
 - `max` (integer): Maximum number of results (1-1000)
