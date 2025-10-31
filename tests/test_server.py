@@ -1,8 +1,12 @@
+import os
 from unittest.mock import AsyncMock, patch
 
 import httpx
 import pytest
 from mcp.types import TextContent
+
+os.environ["PODCAST_INDEX_API_KEY"] = "test_key"
+os.environ["PODCAST_INDEX_API_SECRET"] = "test_secret"
 
 from main import create_server, format_search_results, search_podcasts_tool
 
@@ -91,7 +95,7 @@ async def test_search_podcasts_tool_with_valid_query():
     with patch("main.search_podcasts", new_callable=AsyncMock) as mock_search:
         mock_search.return_value = mock_response
 
-        arguments = {"q": "python", "api_key": "key", "api_secret": "secret"}
+        arguments = {"q": "python"}
         result = await search_podcasts_tool(arguments)
 
         assert len(result) > 0
@@ -110,8 +114,6 @@ async def test_search_podcasts_tool_with_optional_params():
 
         arguments = {
             "q": "test",
-            "api_key": "key",
-            "api_secret": "secret",
             "max": 50,
             "clean": True,
             "fulltext": False,
@@ -119,14 +121,11 @@ async def test_search_podcasts_tool_with_optional_params():
         await search_podcasts_tool(arguments)
 
         mock_search.assert_called_once()
-        call_args = mock_search.call_args
-        assert call_args[0][0] == "key"
-        assert call_args[0][1] == "secret"
-
-        params = call_args[0][2]
+        params = mock_search.call_args[0][2]
         assert params["q"] == "test"
         assert params.get("max") == 50
         assert params.get("clean") is True
+        assert params.get("fulltext") is False
 
 
 @pytest.mark.asyncio
@@ -143,7 +142,7 @@ async def test_search_podcasts_tool_handles_empty_results():
     with patch("main.search_podcasts", new_callable=AsyncMock) as mock_search:
         mock_search.return_value = mock_response
 
-        arguments = {"q": "nonexistent", "api_key": "key", "api_secret": "secret"}
+        arguments = {"q": "nonexistent"}
         result = await search_podcasts_tool(arguments)
 
         assert len(result) > 0
@@ -157,7 +156,7 @@ async def test_search_podcasts_tool_handles_http_errors():
     with patch("main.search_podcasts", new_callable=AsyncMock) as mock_search:
         mock_search.side_effect = httpx.HTTPError("Network error")
 
-        arguments = {"q": "test", "api_key": "key", "api_secret": "secret"}
+        arguments = {"q": "test"}
         result = await search_podcasts_tool(arguments)
 
         assert len(result) > 0
@@ -179,7 +178,7 @@ async def test_search_podcasts_tool_handles_auth_errors():
             "Unauthorized", request=Mock(), response=mock_response
         )
 
-        arguments = {"q": "test", "api_key": "invalid", "api_secret": "invalid"}
+        arguments = {"q": "test"}
         result = await search_podcasts_tool(arguments)
 
         assert len(result) > 0
@@ -194,7 +193,7 @@ async def test_search_podcasts_tool_handles_unexpected_errors():
     with patch("main.search_podcasts", new_callable=AsyncMock) as mock_search:
         mock_search.side_effect = ValueError("Unexpected error")
 
-        arguments = {"q": "test", "api_key": "key", "api_secret": "secret"}
+        arguments = {"q": "test"}
         result = await search_podcasts_tool(arguments)
 
         assert len(result) > 0

@@ -3,7 +3,7 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Development Environment
-- Python version: 3.14.x
+- Python version: 3.10.11
 - Package manager: uv
 - Install dependencies: `uv sync` or `uv add <package>`
 - **Project Type**: Local development project - NOT a distributable package
@@ -14,6 +14,27 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Dependency injection**: Dependencies passed as parameters for testability
 - **Return values**: Functions return rich result objects rather than performing side effects
 - **Separation of I/O and logic**: Business logic separated from I/O operations
+
+## Security Best Practices
+- **Secrets management**: NEVER pass credentials as function parameters or tool arguments
+  - **Always use environment variables** for API keys, secrets, tokens, passwords
+  - Read credentials at module initialization, not per-request
+  - Credentials should never appear in logs, conversation history, or MCP protocol messages
+  - Example: `API_KEY = os.getenv("API_KEY")` at module level, NOT as tool parameter
+- **Input validation**: Validate and sanitize all user inputs
+  - Use type hints and runtime validation for API inputs
+  - Validate enum values, ranges, and formats
+  - Reject malformed or unexpected input early
+- **Common vulnerabilities**: Be aware of OWASP top 10
+  - **No SQL injection**: Use parameterized queries, never string concatenation
+  - **No command injection**: Avoid shell=True, validate inputs to subprocess calls
+  - **No XSS**: Sanitize any HTML output, escape user content
+  - **No path traversal**: Validate file paths, use Path().resolve() to prevent ../.. attacks
+- **Security in code review**: Every PR must consider security implications
+  - Are credentials exposed in tool schemas or function signatures?
+  - Could user input be used maliciously?
+  - Are we logging sensitive data?
+  - Does documentation match implementation for security-critical features?
 
 ## Commands
 - Run application: `PYTHONPATH=src uv run uvicorn main:app --reload`
