@@ -3,6 +3,7 @@
 import asyncio
 import logging
 import os
+from datetime import timedelta
 from typing import Any
 
 import httpx
@@ -504,6 +505,23 @@ async def search_episodes_by_person_tool(
         return [TextContent(type="text", text="Error: An unexpected error occurred")]
 
 
+def _format_duration(seconds: int) -> str:
+    """
+    Convert seconds to human-readable duration format (HH:MM:SS).
+
+    Args:
+        seconds: Duration in seconds
+
+    Returns:
+        Formatted duration string as HH:MM:SS
+    """
+    duration = timedelta(seconds=seconds)
+    total_secs = int(duration.total_seconds())
+    hours, remainder = divmod(total_secs, 3600)
+    minutes, secs = divmod(remainder, 60)
+    return f"{hours}:{minutes:02d}:{secs:02d}"
+
+
 def format_episode_results(response: dict[str, Any]) -> str:
     """
     Format episode API response into readable text.
@@ -542,7 +560,7 @@ def format_episode_results(response: dict[str, Any]) -> str:
             lines.append(f"Published Date: {item['datePublishedPretty']}")
 
         if "duration" in item:
-            lines.append(f"Duration: {item['duration']} seconds")
+            lines.append(f"Duration: {_format_duration(item['duration'])}")
 
         if "link" in item:
             lines.append(f"Episode URL: {item['link']}")
@@ -794,7 +812,7 @@ def format_episode_details(response: dict[str, Any]) -> str:
         lines.append(f"Published Date: {episode['datePublishedPretty']}")
 
     if "duration" in episode:
-        lines.append(f"Duration: {episode['duration']} seconds")
+        lines.append(f"Duration: {_format_duration(episode['duration'])}")
 
     if "link" in episode:
         lines.append(f"Episode URL: {episode['link']}")
