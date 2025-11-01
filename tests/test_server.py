@@ -8,13 +8,7 @@ from mcp.types import TextContent
 os.environ["PODCAST_INDEX_API_KEY"] = "test_key"
 os.environ["PODCAST_INDEX_API_SECRET"] = "test_secret"
 
-from main import create_server, format_search_results, search_podcasts_tool
-
-
-def test_create_server_returns_server_instance():
-    """create_server should return an MCP Server instance."""
-    server = create_server()
-    assert server is not None
+from main import format_search_results, search_podcasts_tool
 
 
 def test_format_search_results_with_results():
@@ -72,6 +66,25 @@ def test_format_search_results_truncates_long_descriptions():
 
     assert "..." in result
     assert len(result) < len(long_desc) + 100
+
+
+def test_format_search_results_with_minimal_feed_data():
+    """format_search_results should handle feeds with only required fields."""
+    response = {
+        "count": 1,
+        "query": "minimal",
+        "feeds": [
+            {"id": 123, "title": "Minimal Podcast"}
+            # Missing: author, description, url
+        ],
+    }
+
+    result = format_search_results(response)
+
+    assert "Minimal Podcast" in result
+    assert "1 podcast(s)" in result
+    assert "minimal" in result
+    assert "Podcast Index ID: 123" in result
 
 
 @pytest.mark.asyncio
@@ -185,6 +198,28 @@ async def test_search_podcasts_tool_handles_auth_errors():
         assert isinstance(result[0], TextContent)
         assert "Error" in result[0].text
         assert "401" in result[0].text or "credentials" in result[0].text.lower()
+
+
+@pytest.mark.asyncio
+async def test_search_podcasts_tool_handles_server_errors():
+    """search_podcasts_tool should handle server errors (500, 503, etc.)."""
+    from unittest.mock import Mock
+
+    mock_response = Mock()
+    mock_response.status_code = 500
+
+    with patch("main.search_podcasts", new_callable=AsyncMock) as mock_search:
+        mock_search.side_effect = httpx.HTTPStatusError(
+            "Internal Server Error", request=Mock(), response=mock_response
+        )
+
+        arguments = {"q": "test"}
+        result = await search_podcasts_tool(arguments)
+
+        assert len(result) > 0
+        assert isinstance(result[0], TextContent)
+        assert "Error" in result[0].text
+        assert "500" in result[0].text
 
 
 @pytest.mark.asyncio

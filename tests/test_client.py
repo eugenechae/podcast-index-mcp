@@ -226,3 +226,25 @@ async def test_search_podcasts_with_empty_results():
 
         assert result["count"] == 0
         assert result["feeds"] == []
+
+
+@pytest.mark.asyncio
+async def test_search_podcasts_handles_malformed_json():
+    """search_podcasts should raise exception when API returns invalid JSON."""
+    api_key = "test_key"
+    api_secret = "test_secret"
+    params = SearchParams(q="test")
+
+    mock_response = Mock()
+    mock_response.status_code = 200
+    mock_response.json.side_effect = ValueError("Invalid JSON")
+
+    with patch("httpx.AsyncClient") as mock_client_class:
+        mock_client = AsyncMock()
+        mock_client.__aenter__.return_value = mock_client
+        mock_client.__aexit__.return_value = None
+        mock_client.get.return_value = mock_response
+        mock_client_class.return_value = mock_client
+
+        with pytest.raises(ValueError):
+            await search_podcasts(api_key, api_secret, params)
