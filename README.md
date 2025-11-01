@@ -15,7 +15,7 @@ An MCP (Model Context Protocol) server that provides access to the [Podcast Inde
 
 - Python 3.10.11 or higher
 - [uv](https://docs.astral.sh/uv/) package manager
-- Podcast Index API credentials ([sign up here](https://api.podcastindex.org/))
+- Podcast Index API credentials ([sign up here](https://api.podcastindex.org/signup))
 
 ## Installation
 
@@ -49,8 +49,7 @@ To use this MCP server with Claude Desktop, add the following to your Claude Des
         "/absolute/path/to/podcast-index-mcp",
         "run",
         "python",
-        "-m",
-        "main"
+        "src/main.py"
       ],
       "env": {
         "PODCAST_INDEX_API_KEY": "your-api-key-here",
@@ -80,6 +79,15 @@ Search for podcasts by term across titles, authors, and owners in the Podcast In
 - `aponly` (boolean): Only return podcasts with iTunes IDs
 - `similar` (boolean): Include similar matches
 
+**Returns:**
+Array of podcast feeds, each containing:
+- `id`: Podcast Index feed ID
+- `title`: Podcast title
+- `author`: Podcast author/creator
+- `description`: Podcast description (truncated unless `fulltext=true`)
+- `url`: RSS feed URL
+- Plus metadata like `image`, `link`, category information, and value block details if present
+
 #### search_podcasts_by_title
 
 Search for podcasts specifically by their title field (more focused than general search).
@@ -92,6 +100,9 @@ Search for podcasts specifically by their title field (more focused than general
 - `fulltext` (boolean): Return complete text fields
 - `similar` (boolean): Include similar title matches using fuzzy search
 
+**Returns:**
+Same structure as `search_podcasts` - array of podcast feeds with `id`, `title`, `author`, `description`, `url`, and additional metadata
+
 #### search_episodes_by_person
 
 Search for episodes featuring or mentioning a specific person.
@@ -100,6 +111,15 @@ Search for episodes featuring or mentioning a specific person.
 - `q` (string, required): Person name to search for
 - `max` (integer): Maximum number of episode results (1-1000)
 - `fulltext` (boolean): Return complete episode descriptions
+
+**Returns:**
+Array of episodes, each containing:
+- `id`: Episode ID
+- `title`: Episode title
+- `feedTitle`: Name of the podcast this episode belongs to
+- `feedId`: Podcast Index feed ID
+- `description`: Episode description (truncated unless `fulltext=true`)
+- Plus additional metadata like `datePublished`, `link`, person tags, and other episode details
 
 #### get_episodes
 
@@ -111,12 +131,31 @@ Retrieve all episodes from a specific podcast feed in reverse chronological orde
 - `max` (integer): Maximum number of episodes (1-1000)
 - `fulltext` (boolean): Return complete episode descriptions
 
+**Returns:**
+Array of episodes from the specified podcast feed, each containing:
+- `id`: Episode ID
+- `title`: Episode title
+- `description`: Episode description (truncated unless `fulltext=true`)
+- `datePublished`: Unix timestamp of publication date
+- Plus metadata like `link`, `enclosureUrl`, `duration`, chapters, transcripts, and other episode details
+
 #### get_podcast_details
 
 Get complete metadata for a specific podcast by feed ID.
 
 **Parameters:**
 - `id` (integer, required): Podcast feed ID from Podcast Index
+
+**Returns:**
+Complete podcast feed metadata, including:
+- `id`: Podcast Index feed ID
+- `title`: Podcast title
+- `author`: Podcast author/creator
+- `description`: Full podcast description
+- `url`: RSS feed URL
+- `link`: Podcast website
+- `image`: Podcast artwork URL
+- Plus comprehensive metadata like categories, funding information, value blocks, iTunes data, and language
 
 #### get_episode_details
 
@@ -125,6 +164,16 @@ Get complete metadata for a specific episode by episode ID.
 **Parameters:**
 - `id` (integer, required): Episode ID from Podcast Index
 - `fulltext` (boolean): Return complete episode description
+
+**Returns:**
+Complete episode metadata, including:
+- `id`: Episode ID
+- `title`: Episode title
+- `feedTitle`: Name of the podcast
+- `feedId`: Podcast Index feed ID
+- `description`: Episode description (truncated unless `fulltext=true`)
+- `link`: Episode URL
+- Plus detailed metadata like person tags, chapters, transcripts, soundbites, value blocks, and publication date
 
 ### Example Workflows
 
@@ -195,36 +244,9 @@ PYTHONPATH=src uv run python -m main
 
 The server uses stdio transport and communicates via the MCP protocol.
 
-## Project Structure
-
-```
-podcast-index-mcp/
-├── src/
-│   ├── main.py                 # MCP server implementation
-│   └── podcast_index/
-│       ├── __init__.py
-│       ├── auth.py            # Authentication utilities
-│       └── client.py          # API client
-├── tests/
-│   ├── test_auth.py           # Authentication tests
-│   ├── test_client.py         # API client tests
-│   └── test_server.py         # MCP server tests
-├── pyproject.toml             # Project configuration
-└── README.md
-```
-
 ## API Documentation
 
 For detailed API documentation, visit the [Podcast Index API docs](https://podcastindex-org.github.io/docs-api/).
-
-## Contributing
-
-Contributions are welcome! Please ensure:
-
-1. All tests pass: `uv run pytest`
-2. Code is formatted: `uv run ruff format .`
-3. Linting passes: `uv run ruff check .`
-4. Type checking passes: `uv run pyrefly check`
 
 ## License
 
