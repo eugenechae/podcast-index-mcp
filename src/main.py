@@ -512,7 +512,7 @@ def format_episode_results(response: dict[str, Any]) -> str:
         response: API response dictionary containing episode results
 
     Returns:
-        Formatted string with episode search results
+        Formatted string with episode search results including all available fields
     """
     count = response.get("count", 0)
     items = response.get("items", [])
@@ -529,11 +529,47 @@ def format_episode_results(response: dict[str, Any]) -> str:
         if "feedTitle" in item:
             lines.append(f"Podcast: {item['feedTitle']}")
 
+        if "feedAuthor" in item:
+            lines.append(f"Author: {item['feedAuthor']}")
+
         if "description" in item:
-            description = item["description"]
-            if len(description) > 200:
-                description = description[:200] + "..."
-            lines.append(f"Description: {description}")
+            lines.append(f"Description: {item['description']}")
+
+        if "datePublished" in item:
+            lines.append(f"Published: {item['datePublished']}")
+
+        if "datePublishedPretty" in item:
+            lines.append(f"Published Date: {item['datePublishedPretty']}")
+
+        if "duration" in item:
+            lines.append(f"Duration: {item['duration']} seconds")
+
+        if "link" in item:
+            lines.append(f"Episode URL: {item['link']}")
+
+        if "enclosureUrl" in item:
+            lines.append(f"Audio URL: {item['enclosureUrl']}")
+
+        if "enclosureType" in item:
+            lines.append(f"Audio Type: {item['enclosureType']}")
+
+        if "enclosureLength" in item:
+            lines.append(f"File Size: {item['enclosureLength']} bytes")
+
+        if "image" in item:
+            lines.append(f"Episode Image: {item['image']}")
+
+        if "feedImage" in item:
+            lines.append(f"Podcast Image: {item['feedImage']}")
+
+        if "feedUrl" in item:
+            lines.append(f"Feed URL: {item['feedUrl']}")
+
+        if "chaptersUrl" in item:
+            lines.append(f"Chapters: {item['chaptersUrl']}")
+
+        if "transcriptUrl" in item:
+            lines.append(f"Transcript: {item['transcriptUrl']}")
 
         if "feedId" in item:
             lines.append(f"Podcast ID: {item['feedId']}")
@@ -596,7 +632,7 @@ def format_podcast_details(response: dict[str, Any]) -> str:
         response: API response dictionary containing podcast feed data
 
     Returns:
-        Formatted string with podcast details
+        Formatted string with podcast details including all available fields
     """
     feed = response.get("feed", {})
 
@@ -605,20 +641,84 @@ def format_podcast_details(response: dict[str, Any]) -> str:
     if "author" in feed:
         lines.append(f"Author: {feed['author']}")
 
+    if "ownerName" in feed:
+        lines.append(f"Owner: {feed['ownerName']}")
+
     if "description" in feed:
-        description = feed["description"]
-        if len(description) > 500:
-            description = description[:500] + "..."
-        lines.append(f"Description: {description}")
+        lines.append(f"Description: {feed['description']}")
 
     if "url" in feed:
         lines.append(f"Feed URL: {feed['url']}")
+
+    if "originalUrl" in feed:
+        lines.append(f"Original Feed URL: {feed['originalUrl']}")
 
     if "link" in feed:
         lines.append(f"Website: {feed['link']}")
 
     if "image" in feed:
         lines.append(f"Image: {feed['image']}")
+
+    if "artwork" in feed:
+        lines.append(f"Artwork: {feed['artwork']}")
+
+    if "lastUpdateTime" in feed:
+        lines.append(f"Last Updated: {feed['lastUpdateTime']}")
+
+    if "lastCrawlTime" in feed:
+        lines.append(f"Last Crawled: {feed['lastCrawlTime']}")
+
+    if "lastParseTime" in feed:
+        lines.append(f"Last Parsed: {feed['lastParseTime']}")
+
+    if "lastGoodHttpStatusTime" in feed:
+        lines.append(f"Last Good HTTP Status: {feed['lastGoodHttpStatusTime']}")
+
+    if "lastHttpStatus" in feed:
+        lines.append(f"Last HTTP Status: {feed['lastHttpStatus']}")
+
+    if "contentType" in feed:
+        lines.append(f"Content Type: {feed['contentType']}")
+
+    if "itunesId" in feed:
+        lines.append(f"iTunes ID: {feed['itunesId']}")
+
+    if "generator" in feed:
+        lines.append(f"Generator: {feed['generator']}")
+
+    if "language" in feed:
+        lines.append(f"Language: {feed['language']}")
+
+    if "type" in feed:
+        lines.append(f"Type: {feed['type']}")
+
+    if "dead" in feed:
+        lines.append(f"Dead: {feed['dead']}")
+
+    if "crawlErrors" in feed:
+        lines.append(f"Crawl Errors: {feed['crawlErrors']}")
+
+    if "parseErrors" in feed:
+        lines.append(f"Parse Errors: {feed['parseErrors']}")
+
+    if "categories" in feed:
+        if isinstance(feed["categories"], dict):
+            categories = ", ".join(str(v) for v in feed["categories"].values())
+            lines.append(f"Categories: {categories}")
+        else:
+            lines.append(f"Categories: {feed['categories']}")
+
+    if "locked" in feed:
+        lines.append(f"Locked: {feed['locked']}")
+
+    if "explicit" in feed:
+        lines.append(f"Explicit: {feed['explicit']}")
+
+    if "episodeCount" in feed:
+        lines.append(f"Episode Count: {feed['episodeCount']}")
+
+    if "imageUrlHash" in feed:
+        lines.append(f"Image URL Hash: {feed['imageUrlHash']}")
 
     if "id" in feed:
         lines.append(f"Podcast Index ID: {feed['id']}")
@@ -672,7 +772,7 @@ def format_episode_details(response: dict[str, Any]) -> str:
         response: API response dictionary containing episode data
 
     Returns:
-        Formatted string with episode details
+        Formatted string with episode details including all available fields
     """
     episode = response.get("episode", {})
 
@@ -681,14 +781,86 @@ def format_episode_details(response: dict[str, Any]) -> str:
     if "feedTitle" in episode:
         lines.append(f"Podcast: {episode['feedTitle']}")
 
+    if "feedAuthor" in episode:
+        lines.append(f"Author: {episode['feedAuthor']}")
+
     if "description" in episode:
-        description = episode["description"]
-        if len(description) > 500:
-            description = description[:500] + "..."
-        lines.append(f"Description: {description}")
+        lines.append(f"Description: {episode['description']}")
+
+    if "datePublished" in episode:
+        lines.append(f"Published: {episode['datePublished']}")
+
+    if "datePublishedPretty" in episode:
+        lines.append(f"Published Date: {episode['datePublishedPretty']}")
+
+    if "duration" in episode:
+        lines.append(f"Duration: {episode['duration']} seconds")
 
     if "link" in episode:
         lines.append(f"Episode URL: {episode['link']}")
+
+    if "enclosureUrl" in episode:
+        lines.append(f"Audio URL: {episode['enclosureUrl']}")
+
+    if "enclosureType" in episode:
+        lines.append(f"Audio Type: {episode['enclosureType']}")
+
+    if "enclosureLength" in episode:
+        lines.append(f"File Size: {episode['enclosureLength']} bytes")
+
+    if "image" in episode:
+        lines.append(f"Episode Image: {episode['image']}")
+
+    if "feedImage" in episode:
+        lines.append(f"Podcast Image: {episode['feedImage']}")
+
+    if "feedUrl" in episode:
+        lines.append(f"Feed URL: {episode['feedUrl']}")
+
+    if "chaptersUrl" in episode:
+        lines.append(f"Chapters: {episode['chaptersUrl']}")
+
+    if "transcriptUrl" in episode:
+        lines.append(f"Transcript: {episode['transcriptUrl']}")
+
+    if "season" in episode:
+        lines.append(f"Season: {episode['season']}")
+
+    if "episode" in episode:
+        lines.append(f"Episode: {episode['episode']}")
+
+    if "episodeType" in episode:
+        lines.append(f"Episode Type: {episode['episodeType']}")
+
+    if "explicit" in episode:
+        lines.append(f"Explicit: {episode['explicit']}")
+
+    if "feedItunesId" in episode:
+        lines.append(f"iTunes ID: {episode['feedItunesId']}")
+
+    if "feedLanguage" in episode:
+        lines.append(f"Language: {episode['feedLanguage']}")
+
+    if "persons" in episode:
+        persons_list = episode["persons"]
+        if persons_list:
+            lines.append("Persons:")
+            for person in persons_list:
+                name = person.get("name", "Unknown")
+                role = person.get("role", "")
+                if role:
+                    lines.append(f"  - {name} ({role})")
+                else:
+                    lines.append(f"  - {name}")
+
+    if "socialInteract" in episode:
+        social_list = episode["socialInteract"]
+        if social_list:
+            lines.append("Social Interactions:")
+            for social in social_list:
+                protocol = social.get("protocol", "Unknown")
+                uri = social.get("uri", "")
+                lines.append(f"  - {protocol}: {uri}")
 
     if "feedId" in episode:
         lines.append(f"Podcast ID: {episode['feedId']}")
@@ -748,7 +920,7 @@ def format_search_results(response: dict[str, Any]) -> str:
         response: API response dictionary
 
     Returns:
-        Formatted string with search results
+        Formatted string with search results including all available fields
     """
     count = response.get("count", 0)
     feeds = response.get("feeds", [])
@@ -765,14 +937,65 @@ def format_search_results(response: dict[str, Any]) -> str:
         if "author" in feed:
             lines.append(f"Author: {feed['author']}")
 
+        if "ownerName" in feed:
+            lines.append(f"Owner: {feed['ownerName']}")
+
         if "description" in feed:
-            description = feed["description"]
-            if len(description) > 200:
-                description = description[:200] + "..."
-            lines.append(f"Description: {description}")
+            lines.append(f"Description: {feed['description']}")
 
         if "url" in feed:
             lines.append(f"Feed URL: {feed['url']}")
+
+        if "originalUrl" in feed:
+            lines.append(f"Original Feed URL: {feed['originalUrl']}")
+
+        if "link" in feed:
+            lines.append(f"Website: {feed['link']}")
+
+        if "image" in feed:
+            lines.append(f"Image: {feed['image']}")
+
+        if "artwork" in feed:
+            lines.append(f"Artwork: {feed['artwork']}")
+
+        if "lastUpdateTime" in feed:
+            lines.append(f"Last Updated: {feed['lastUpdateTime']}")
+
+        if "lastCrawlTime" in feed:
+            lines.append(f"Last Crawled: {feed['lastCrawlTime']}")
+
+        if "lastParseTime" in feed:
+            lines.append(f"Last Parsed: {feed['lastParseTime']}")
+
+        if "lastGoodHttpStatusTime" in feed:
+            lines.append(f"Last Good HTTP Status: {feed['lastGoodHttpStatusTime']}")
+
+        if "lastHttpStatus" in feed:
+            lines.append(f"Last HTTP Status: {feed['lastHttpStatus']}")
+
+        if "contentType" in feed:
+            lines.append(f"Content Type: {feed['contentType']}")
+
+        if "itunesId" in feed:
+            lines.append(f"iTunes ID: {feed['itunesId']}")
+
+        if "generator" in feed:
+            lines.append(f"Generator: {feed['generator']}")
+
+        if "language" in feed:
+            lines.append(f"Language: {feed['language']}")
+
+        if "type" in feed:
+            lines.append(f"Type: {feed['type']}")
+
+        if "dead" in feed:
+            lines.append(f"Dead: {feed['dead']}")
+
+        if "crawlErrors" in feed:
+            lines.append(f"Crawl Errors: {feed['crawlErrors']}")
+
+        if "parseErrors" in feed:
+            lines.append(f"Parse Errors: {feed['parseErrors']}")
 
         if "id" in feed:
             lines.append(f"Podcast Index ID: {feed['id']}")
