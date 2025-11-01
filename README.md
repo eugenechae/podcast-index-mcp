@@ -4,10 +4,12 @@ An MCP (Model Context Protocol) server that provides access to the [Podcast Inde
 
 ## Features
 
-- **Search Podcasts**: Search for podcasts by term across titles, authors, and owners
-- **Rich Filtering**: Support for various filters including explicit content filtering, value block types, and more
+- **Comprehensive Search**: Search podcasts by general term, specific title, or episodes by person
+- **Episode Discovery**: Browse all episodes from a podcast feed and get detailed episode information
+- **Podcast Details**: Retrieve complete metadata including descriptions, funding, value blocks, and more
+- **Rich Filtering**: Support for value block types (Lightning, Hive, WebMonetization), explicit content filtering, and date ranges
 - **Secure Authentication**: Uses Podcast Index API key/secret authentication
-- **Extensible Design**: Built with clean architecture for easy addition of more endpoints
+- **Complete Workflows**: Enable multi-step discovery from search to detailed content exploration
 
 ## Prerequisites
 
@@ -67,12 +69,10 @@ Replace `/absolute/path/to/podcast-index-mcp` with the actual path to this repos
 
 #### search_podcasts
 
-Search for podcasts by term across the Podcast Index database.
+Search for podcasts by term across titles, authors, and owners in the Podcast Index database.
 
-**Required Parameters:**
-- `q` (string): Search query term
-
-**Optional Parameters:**
+**Parameters:**
+- `q` (string, required): Search query term
 - `max` (integer): Maximum number of results (1-1000)
 - `val` (string): Filter by value block type (`any`, `lightning`, `hive`, `webmonetization`)
 - `clean` (boolean): Exclude explicit content
@@ -80,10 +80,83 @@ Search for podcasts by term across the Podcast Index database.
 - `aponly` (boolean): Only return podcasts with iTunes IDs
 - `similar` (boolean): Include similar matches
 
-**Example Queries:**
-- "Search for Python programming podcasts"
-- "Find clean podcasts about technology"
-- "Search for podcasts with Lightning value enabled"
+#### search_podcasts_by_title
+
+Search for podcasts specifically by their title field (more focused than general search).
+
+**Parameters:**
+- `q` (string, required): Search term to match against podcast titles
+- `max` (integer): Maximum number of results (1-1000)
+- `val` (string): Filter by value block type
+- `clean` (boolean): Exclude explicit content
+- `fulltext` (boolean): Return complete text fields
+- `similar` (boolean): Include similar title matches using fuzzy search
+
+#### search_episodes_by_person
+
+Search for episodes featuring or mentioning a specific person.
+
+**Parameters:**
+- `q` (string, required): Person name to search for
+- `max` (integer): Maximum number of episode results (1-1000)
+- `fulltext` (boolean): Return complete episode descriptions
+
+#### get_episodes
+
+Retrieve all episodes from a specific podcast feed in reverse chronological order.
+
+**Parameters:**
+- `id` (integer, required): Podcast feed ID from Podcast Index
+- `since` (integer): Unix timestamp - only return episodes published after this time
+- `max` (integer): Maximum number of episodes (1-1000)
+- `fulltext` (boolean): Return complete episode descriptions
+
+#### get_podcast_details
+
+Get complete metadata for a specific podcast by feed ID.
+
+**Parameters:**
+- `id` (integer, required): Podcast feed ID from Podcast Index
+
+#### get_episode_details
+
+Get complete metadata for a specific episode by episode ID.
+
+**Parameters:**
+- `id` (integer, required): Episode ID from Podcast Index
+- `fulltext` (boolean): Return complete episode description
+
+### Example Workflows
+
+These multi-tool workflows demonstrate the power of combining different endpoints:
+
+#### 1. Person-Centric Discovery
+```
+"Find episodes featuring Adam Curry, then show me complete details about the first result,
+including information about the podcast it's from."
+```
+Tools used: `search_episodes_by_person` → `get_episode_details` → `get_podcast_details`
+
+#### 2. Topic Deep Dive
+```
+"Search for podcasts about artificial intelligence, get the details of the top result,
+and show me its 10 most recent episodes."
+```
+Tools used: `search_podcasts` → `get_podcast_details` → `get_episodes`
+
+#### 3. Lightning-Enabled Content Search
+```
+"Find podcasts that support Bitcoin Lightning payments, get details on the first 3 results,
+and show me their latest episodes."
+```
+Tools used: `search_podcasts` (with val='lightning') → `get_podcast_details` (×3) → `get_episodes` (×3)
+
+#### 4. Comparative Analysis
+```
+"Search for 'technology news' podcasts, compare the top 2 by getting their full details,
+and show me the 5 most recent episodes from each."
+```
+Tools used: `search_podcasts` → `get_podcast_details` (×2) → `get_episodes` (×2)
 
 ## Development
 
