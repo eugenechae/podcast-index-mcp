@@ -42,42 +42,74 @@ def create_server() -> Server:
             Tool(
                 name="search_podcasts",
                 description=(
-                    "Search for podcasts by term. Searches against podcast "
-                    "title, author, and owner fields in the Podcast Index."
+                    "Search for podcasts in the Podcast Index database. Performs a broad search "
+                    "matching the query against podcast title, author name, and owner fields. "
+                    "Use this for general podcast discovery when you want to search across multiple "
+                    "fields. Returns podcast feed information including title, description, and URLs."
                 ),
                 inputSchema={
                     "type": "object",
                     "properties": {
                         "q": {
                             "type": "string",
-                            "description": "Search query term",
+                            "description": (
+                                "Search terms to match against podcast title, author, and owner fields. "
+                                "Can be a podcast name (e.g., 'Serial'), creator name (e.g., 'Joe Rogan'), "
+                                "or topic keywords (e.g., 'technology news'). Supports multi-word queries."
+                            ),
                         },
                         "max": {
                             "type": "integer",
-                            "description": "Maximum number of results (max 1000)",
+                            "description": (
+                                "Maximum number of results to return. Defaults to a reasonable limit if not specified. "
+                                "Use lower values (10-20) for quick searches, higher values (100+) for comprehensive results. "
+                                "Maximum allowed: 1000."
+                            ),
                             "minimum": 1,
                             "maximum": 1000,
                         },
                         "val": {
                             "type": "string",
-                            "description": "Filter by value block type",
+                            "description": (
+                                "Filter podcasts by value-for-value payment method support. Options: "
+                                "'lightning' (supports Bitcoin Lightning Network payments), "
+                                "'hive' (supports Hive blockchain payments), "
+                                "'webmonetization' (supports Web Monetization standard), "
+                                "'any' (has any value block enabled). "
+                                "Use this to find podcasts that support direct listener compensation."
+                            ),
                             "enum": ["any", "lightning", "hive", "webmonetization"],
                         },
                         "clean": {
                             "type": "boolean",
-                            "description": "Exclude explicit content",
+                            "description": (
+                                "When true, excludes podcasts marked as explicit or containing adult content. "
+                                "Useful for family-friendly searches or content curation for general audiences."
+                            ),
                         },
                         "fulltext": {
                             "type": "boolean",
-                            "description": "Return full text fields (not truncated)",
+                            "description": (
+                                "When true, returns complete description and text fields without truncation. "
+                                "When false or omitted, long text fields may be shortened. "
+                                "Use true when you need full podcast descriptions for detailed analysis."
+                            ),
                         },
                         "aponly": {
                             "type": "boolean",
-                            "description": "Only return podcasts with iTunes IDs",
+                            "description": (
+                                "When true, only returns podcasts that are available on Apple Podcasts "
+                                "(have iTunes IDs). Useful for finding mainstream podcasts or ensuring "
+                                "compatibility with Apple's ecosystem."
+                            ),
                         },
                         "similar": {
                             "type": "boolean",
-                            "description": "Include similar matches",
+                            "description": (
+                                "When true, includes podcasts with similar titles using fuzzy matching. "
+                                "Helpful for finding podcasts with spelling variations, alternative names, "
+                                "or close matches when the exact title is unknown."
+                            ),
                         },
                     },
                     "required": ["q"],
