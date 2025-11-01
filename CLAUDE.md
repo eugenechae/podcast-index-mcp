@@ -91,6 +91,79 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - All functions should have docstrings describing purpose and parameters
 - New features should include usage examples
 
+## MCP Tool Descriptions
+MCP tools are discovered and used by LLMs. Tool descriptions are the primary way LLMs understand when and how to use each tool. Poor descriptions lead to incorrect usage, while excellent descriptions enable LLMs to use tools effectively.
+
+### Tool Description Best Practices
+- **Be comprehensive and educational**: LLMs don't have domain knowledge about podcasting, blockchain payments, or niche ecosystems
+- **Explain the "why" not just the "what"**: Help LLMs understand use cases and scenarios
+- **Provide concrete examples**: Use real-world examples in parameter descriptions (e.g., "Joe Rogan", "technology news")
+- **Define specialized terminology**: Explain domain-specific terms (e.g., "value blocks", "iTunes IDs", "fuzzy matching")
+- **Guide parameter usage**: Explain when to use each parameter and what values make sense
+- **Include defaults and ranges**: Mention default behavior and reasonable value ranges
+- **Differentiate between similar tools**: When multiple tools exist, clearly explain when to use each one
+
+### Tool Description Structure
+Each tool should have:
+
+1. **Tool-level description**: 2-4 sentences explaining:
+   - What the tool does
+   - When to use it (vs. other similar tools)
+   - What it returns
+   - Key use cases
+
+2. **Parameter descriptions**: For each parameter include:
+   - What the parameter does
+   - Why someone would use it (use case)
+   - Concrete examples of valid values
+   - Guidance on value selection (e.g., "Use lower values (10-20) for quick searches")
+   - Explanation of enum options (what each option means and when to use it)
+   - Default behavior if omitted
+
+### Examples of Good vs. Bad Descriptions
+
+**❌ Bad - Too minimal:**
+```python
+"val": {
+    "description": "Filter by value block type",
+    "enum": ["any", "lightning", "hive", "webmonetization"]
+}
+```
+
+**✅ Good - Educational and contextual:**
+```python
+"val": {
+    "description": (
+        "Filter podcasts by value-for-value payment method support. Options: "
+        "'lightning' (supports Bitcoin Lightning Network payments), "
+        "'hive' (supports Hive blockchain payments), "
+        "'webmonetization' (supports Web Monetization standard), "
+        "'any' (has any value block enabled). "
+        "Use this to find podcasts that support direct listener compensation."
+    ),
+    "enum": ["any", "lightning", "hive", "webmonetization"]
+}
+```
+
+**❌ Bad - Vague:**
+```python
+"q": {"description": "Search query term"}
+```
+
+**✅ Good - Specific with examples:**
+```python
+"q": {
+    "description": (
+        "Search terms to match against podcast title, author, and owner fields. "
+        "Can be a podcast name (e.g., 'Serial'), creator name (e.g., 'Joe Rogan'), "
+        "or topic keywords (e.g., 'technology news'). Supports multi-word queries."
+    )
+}
+```
+
+### Reference Implementation
+See `src/main.py` for the `search_podcasts` tool as a reference example of comprehensive, LLM-friendly tool descriptions.
+
 ## Development Methodology
 - **ALWAYS use Test-Driven Development (TDD)** for new features and bug fixes
   - Write comprehensive tests BEFORE implementing functionality
