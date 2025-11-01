@@ -62,8 +62,8 @@ def test_format_search_results_with_empty_results():
     assert "nonexistent" in result
 
 
-def test_format_search_results_truncates_long_descriptions():
-    """format_search_results should truncate long descriptions."""
+def test_format_search_results_does_not_truncate_descriptions():
+    """format_search_results should not truncate descriptions - API handles that."""
     long_desc = "a" * 300
     response = {
         "count": 1,
@@ -75,8 +75,7 @@ def test_format_search_results_truncates_long_descriptions():
 
     result = format_search_results(response)
 
-    assert "..." in result
-    assert len(result) < len(long_desc) + 100
+    assert long_desc in result
 
 
 def test_format_search_results_with_minimal_feed_data():
@@ -96,6 +95,57 @@ def test_format_search_results_with_minimal_feed_data():
     assert "1 podcast(s)" in result
     assert "minimal" in result
     assert "Podcast Index ID: 123" in result
+
+
+def test_format_search_results_includes_all_api_fields():
+    """format_search_results should include all fields from API response."""
+    response = {
+        "count": 1,
+        "query": "test",
+        "feeds": [
+            {
+                "id": 123,
+                "title": "Test Podcast",
+                "url": "https://example.com/feed.xml",
+                "originalUrl": "https://original.example.com/feed.xml",
+                "link": "https://example.com",
+                "description": "Podcast description",
+                "author": "Test Author",
+                "ownerName": "Test Owner",
+                "image": "https://example.com/image.jpg",
+                "artwork": "https://example.com/artwork.jpg",
+                "lastUpdateTime": 1609459200,
+                "lastCrawlTime": 1609459100,
+                "lastParseTime": 1609459000,
+                "lastGoodHttpStatusTime": 1609458900,
+                "lastHttpStatus": 200,
+                "contentType": "application/rss+xml",
+                "itunesId": 123456789,
+                "generator": "Podcast Generator 1.0",
+                "language": "en",
+                "type": 0,
+                "dead": 0,
+                "crawlErrors": 0,
+                "parseErrors": 0,
+            }
+        ],
+    }
+
+    result = format_search_results(response)
+
+    assert "Test Podcast" in result
+    assert "Test Author" in result
+    assert "Test Owner" in result
+    assert "Podcast description" in result
+    assert "https://example.com/feed.xml" in result
+    assert "https://original.example.com/feed.xml" in result
+    assert "https://example.com" in result
+    assert "https://example.com/image.jpg" in result
+    assert "https://example.com/artwork.jpg" in result
+    assert "Podcast Index ID: 123" in result
+    assert "123456789" in result
+    assert "application/rss+xml" in result
+    assert "en" in result
 
 
 @pytest.mark.asyncio
@@ -419,8 +469,8 @@ def test_format_episode_results_with_empty_results():
     assert "nonexistent" in result
 
 
-def test_format_episode_results_truncates_long_descriptions():
-    """format_episode_results should truncate long descriptions."""
+def test_format_episode_results_does_not_truncate_descriptions():
+    """format_episode_results should not truncate descriptions - API handles that."""
     long_desc = "a" * 300
     response = {
         "count": 1,
@@ -437,8 +487,7 @@ def test_format_episode_results_truncates_long_descriptions():
 
     result = format_episode_results(response)
 
-    assert "..." in result
-    assert len(result) < len(long_desc) + 100
+    assert long_desc in result
 
 
 def test_format_episode_results_with_minimal_episode_data():
@@ -454,6 +503,56 @@ def test_format_episode_results_with_minimal_episode_data():
     assert "Minimal Episode" in result
     assert "1 episode(s)" in result
     assert "Episode ID: 123" in result
+
+
+def test_format_episode_results_includes_all_api_fields():
+    """format_episode_results should include all fields from API response."""
+    response = {
+        "count": 1,
+        "query": "test",
+        "items": [
+            {
+                "id": 123,
+                "title": "Test Episode",
+                "feedTitle": "Test Podcast",
+                "description": "Episode description",
+                "feedId": 456,
+                "datePublished": 1609459200,
+                "datePublishedPretty": "January 01, 2021 12:00am",
+                "duration": 3600,
+                "enclosureUrl": "https://example.com/episode.mp3",
+                "enclosureType": "audio/mpeg",
+                "enclosureLength": 52428800,
+                "link": "https://example.com/episode",
+                "image": "https://example.com/episode.jpg",
+                "feedImage": "https://example.com/feed.jpg",
+                "feedUrl": "https://example.com/feed.xml",
+                "feedAuthor": "Test Author",
+                "chaptersUrl": "https://example.com/chapters.json",
+                "transcriptUrl": "https://example.com/transcript.json",
+            }
+        ],
+    }
+
+    result = format_episode_results(response)
+
+    assert "Test Episode" in result
+    assert "Test Podcast" in result
+    assert "Episode description" in result
+    assert "Episode ID: 123" in result
+    assert "Podcast ID: 456" in result
+    assert "1609459200" in result or "January 01, 2021" in result
+    assert "3600" in result or "1:00:00" in result or "1 hour" in result
+    assert "https://example.com/episode.mp3" in result
+    assert "audio/mpeg" in result
+    assert "52428800" in result or "50" in result
+    assert "https://example.com/episode" in result
+    assert "https://example.com/episode.jpg" in result
+    assert "https://example.com/feed.jpg" in result
+    assert "https://example.com/feed.xml" in result
+    assert "Test Author" in result
+    assert "https://example.com/chapters.json" in result
+    assert "https://example.com/transcript.json" in result
 
 
 @pytest.mark.asyncio
@@ -652,6 +751,60 @@ def test_format_podcast_details_with_minimal_data():
     assert "Podcast Index ID: 123" in result
 
 
+def test_format_podcast_details_includes_all_api_fields():
+    """format_podcast_details should include all fields from API response."""
+    response = {
+        "status": "true",
+        "feed": {
+            "id": 123,
+            "title": "Test Podcast",
+            "url": "https://example.com/feed.xml",
+            "originalUrl": "https://original.example.com/feed.xml",
+            "link": "https://example.com",
+            "description": "Detailed podcast description",
+            "author": "Test Author",
+            "ownerName": "Test Owner",
+            "image": "https://example.com/image.jpg",
+            "artwork": "https://example.com/artwork.jpg",
+            "lastUpdateTime": 1609459200,
+            "lastCrawlTime": 1609459100,
+            "lastParseTime": 1609459000,
+            "lastGoodHttpStatusTime": 1609458900,
+            "lastHttpStatus": 200,
+            "contentType": "application/rss+xml",
+            "itunesId": 123456789,
+            "generator": "Podcast Generator 1.0",
+            "language": "en",
+            "type": 0,
+            "dead": 0,
+            "crawlErrors": 0,
+            "parseErrors": 0,
+            "categories": {"1": "Technology", "2": "News"},
+            "locked": 0,
+            "explicit": False,
+            "episodeCount": 100,
+            "imageUrlHash": 123456,
+        },
+    }
+
+    result = format_podcast_details(response)
+
+    assert "Test Podcast" in result
+    assert "Test Author" in result
+    assert "Test Owner" in result
+    assert "Detailed podcast description" in result
+    assert "https://example.com/feed.xml" in result
+    assert "https://original.example.com/feed.xml" in result
+    assert "https://example.com" in result
+    assert "https://example.com/image.jpg" in result
+    assert "https://example.com/artwork.jpg" in result
+    assert "Podcast Index ID: 123" in result
+    assert "123456789" in result
+    assert "application/rss+xml" in result
+    assert "en" in result
+    assert "100" in result
+
+
 @pytest.mark.asyncio
 async def test_get_podcast_details_tool_with_valid_id():
     """get_podcast_details_tool should retrieve podcast details and return formatted results."""
@@ -720,6 +873,74 @@ def test_format_episode_details_with_minimal_data():
 
     assert "Test Episode" in result
     assert "Episode ID: 123" in result
+
+
+def test_format_episode_details_includes_all_api_fields():
+    """format_episode_details should include all fields from API response."""
+    response = {
+        "status": "true",
+        "episode": {
+            "id": 123,
+            "title": "Test Episode",
+            "feedTitle": "Test Podcast",
+            "description": "Detailed episode description",
+            "feedId": 456,
+            "datePublished": 1609459200,
+            "datePublishedPretty": "January 01, 2021 12:00am",
+            "duration": 3600,
+            "enclosureUrl": "https://example.com/episode.mp3",
+            "enclosureType": "audio/mpeg",
+            "enclosureLength": 52428800,
+            "link": "https://example.com/episode",
+            "image": "https://example.com/episode.jpg",
+            "feedImage": "https://example.com/feed.jpg",
+            "feedUrl": "https://example.com/feed.xml",
+            "feedAuthor": "Test Author",
+            "chaptersUrl": "https://example.com/chapters.json",
+            "transcriptUrl": "https://example.com/transcript.json",
+            "season": 1,
+            "episode": 5,
+            "episodeType": "full",
+            "explicit": 0,
+            "feedItunesId": 123456789,
+            "feedLanguage": "en",
+            "persons": [
+                {"name": "John Doe", "role": "host"},
+                {"name": "Jane Smith", "role": "guest"},
+            ],
+            "socialInteract": [
+                {
+                    "protocol": "activitypub",
+                    "uri": "https://mastodon.example/@user",
+                    "accountId": "@user@mastodon.example",
+                }
+            ],
+        },
+    }
+
+    result = format_episode_details(response)
+
+    assert "Test Episode" in result
+    assert "Test Podcast" in result
+    assert "Detailed episode description" in result
+    assert "Episode ID: 123" in result
+    assert "Podcast ID: 456" in result
+    assert "1609459200" in result or "January 01, 2021" in result
+    assert "3600" in result or "1:00:00" in result or "1 hour" in result
+    assert "https://example.com/episode.mp3" in result
+    assert "audio/mpeg" in result
+    assert "52428800" in result or "50" in result
+    assert "https://example.com/episode" in result
+    assert "https://example.com/episode.jpg" in result
+    assert "https://example.com/feed.jpg" in result
+    assert "https://example.com/feed.xml" in result
+    assert "Test Author" in result
+    assert "https://example.com/chapters.json" in result
+    assert "https://example.com/transcript.json" in result
+    assert "Season: 1" in result or "season: 1" in result
+    assert "Episode: 5" in result or "episode: 5" in result
+    assert "John Doe" in result
+    assert "Jane Smith" in result
 
 
 @pytest.mark.asyncio
