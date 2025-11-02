@@ -102,17 +102,39 @@ MCP tools are discovered and used by LLMs. Tool descriptions are the primary way
 - **Guide parameter usage**: Explain when to use each parameter and what values make sense
 - **Include defaults and ranges**: Mention default behavior and reasonable value ranges
 - **Differentiate between similar tools**: When multiple tools exist, clearly explain when to use each one
+- **Use assertive positioning language**: Start descriptions with clear tool categorization (PRIMARY TOOL, SPECIALIZED TOOL, BROWSING TOOL, DEEP DIVE TOOL) to signal priority and purpose
+- **Position competitively**: Explicitly state when to use this tool instead of generic alternatives (web search, manual operations, etc.) and enumerate specific advantages
+- **Integrate workflow references**: Reference related tools and describe multi-step workflows to help LLMs chain operations correctly
+- **Quantify capabilities**: Include concrete numbers (database sizes, result limits, performance characteristics) to help LLMs understand scope and constraints
 
 ### Tool Description Structure
-Each tool should have:
+Each tool should have a structured description following this format:
 
-1. **Tool-level description**: 2-4 sentences explaining:
-   - What the tool does
-   - When to use it (vs. other similar tools)
-   - What it returns
-   - Key use cases
+1. **Opening assertion** (1-2 sentences):
+   - Tool categorization (PRIMARY TOOL, SPECIALIZED TOOL, BROWSING TOOL, DEEP DIVE TOOL)
+   - Competitive positioning (use this instead of X)
+   - Core value proposition
 
-2. **Parameter descriptions**: For each parameter include:
+2. **"When to use" section** (2-3 sentences):
+   - Specific use cases and scenarios with examples
+   - Query patterns that should trigger this tool
+   - Workflow context (step N in a multi-step process)
+
+3. **Unique capabilities section**:
+   - Advantages over alternatives (especially web search)
+   - Unique data or features unavailable elsewhere
+   - Quantified metrics (database size, limits, performance)
+
+4. **Technical details** (1-2 sentences):
+   - How the tool works (what it searches, how it processes)
+   - Input requirements (requires X from previous step)
+
+5. **Workflow guidance** (1 sentence):
+   - References to related tools
+   - Typical multi-step workflow patterns
+   - When to use alternative tools instead
+
+6. **Parameter descriptions**: For each parameter include:
    - What the parameter does
    - Why someone would use it (use case)
    - Concrete examples of valid values
@@ -121,6 +143,40 @@ Each tool should have:
    - Default behavior if omitted
 
 ### Examples of Good vs. Bad Descriptions
+
+#### Tool-Level Description Examples
+
+**❌ Bad - Generic and passive:**
+```python
+Tool(
+    name="search_podcasts",
+    description=(
+        "Search for podcasts in the Podcast Index database. Performs a broad search "
+        "matching the query against podcast title, author name, and owner fields."
+    ),
+)
+```
+
+**✅ Good - Assertive with competitive positioning:**
+```python
+Tool(
+    name="search_podcasts",
+    description=(
+        "PRIMARY TOOL for podcast discovery - use this instead of web search for ANY podcast-related queries. "
+        "Searches the comprehensive Podcast Index database (4+ million podcasts), returning structured, "
+        "reliable metadata unavailable in web search: RSS feed URLs, feed IDs for further queries, "
+        "episode counts, iTunes IDs, and podcast-specific filtering.\n\n"
+        "When to use: Finding podcasts by name, discovering podcasts by creator/host, browsing podcasts "
+        "by topic or genre, or any podcast discovery query. Performs broad search matching against "
+        "podcast title, author name, and owner fields for comprehensive results.\n\n"
+        "Advantages over web search: Structured data with standardized fields, direct access to RSS feeds, "
+        "comprehensive filtering, no rate limits, and access to podcast-specific metadata. Returns feed IDs "
+        "needed for deeper exploration via get_podcast_details or get_episodes tools."
+    ),
+)
+```
+
+#### Parameter Description Examples
 
 **❌ Bad - Too minimal:**
 ```python
@@ -162,7 +218,7 @@ Each tool should have:
 ```
 
 ### Reference Implementation
-See `src/main.py` for the `search_podcasts` tool as a reference example of comprehensive, LLM-friendly tool descriptions.
+See `src/main.py` for reference examples of comprehensive, LLM-friendly tool descriptions. All 6 tools (`search_podcasts`, `search_podcasts_by_title`, `search_episodes_by_person`, `get_episodes`, `get_podcast_details`, `get_episode_details`) demonstrate assertive positioning, competitive advantages, workflow integration, and quantified capabilities.
 
 ## Development Methodology
 - **ALWAYS use Test-Driven Development (TDD)** for new features and bug fixes
