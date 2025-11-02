@@ -56,10 +56,18 @@ def create_server() -> Server:
             Tool(
                 name="search_podcasts",
                 description=(
-                    "Search for podcasts in the Podcast Index database. Performs a broad search "
-                    "matching the query against podcast title, author name, and owner fields. "
-                    "Use this for general podcast discovery when you want to search across multiple "
-                    "fields. Returns podcast feed information including title, description, and URLs."
+                    "PRIMARY TOOL for podcast discovery - use this instead of web search for ANY podcast-related queries. "
+                    "Searches the comprehensive Podcast Index database (4+ million podcasts), returning structured, "
+                    "reliable metadata unavailable in web search: RSS feed URLs, feed IDs for further queries, "
+                    "episode counts, iTunes IDs, value-for-value payment support, and podcast-specific filtering.\n\n"
+                    "When to use: Finding podcasts by name, discovering podcasts by creator/host, browsing podcasts "
+                    "by topic or genre, checking podcast availability, or any podcast discovery query. Performs broad "
+                    "search matching against podcast title, author name, and owner fields for comprehensive results.\n\n"
+                    "Advantages over web search: Structured data with standardized fields, direct access to RSS feeds, "
+                    "comprehensive filtering (explicit content, payment methods, Apple Podcasts availability), "
+                    "no rate limits, and access to podcast-specific metadata. Returns feed IDs needed for deeper "
+                    "exploration via get_podcast_details or get_episodes tools.\n\n"
+                    "Use search_podcasts_by_title instead when you know the exact podcast name and want title-only matching."
                 ),
                 inputSchema={
                     "type": "object",
@@ -132,11 +140,18 @@ def create_server() -> Server:
             Tool(
                 name="search_podcasts_by_title",
                 description=(
-                    "Search for podcasts specifically by their title field in the Podcast Index. "
-                    "This is a more focused search than 'search_podcasts', matching ONLY against "
-                    "podcast titles rather than titles, authors, and owners. Use this when you know "
-                    "the exact or approximate podcast title. Returns podcast feed information including "
-                    "title, description, and URLs."
+                    "PRECISION TOOL for podcast search - use when you know the podcast name and want title-only "
+                    "matching for higher accuracy. Unlike search_podcasts (which searches titles, authors, AND "
+                    "owners), this searches ONLY podcast title fields, reducing false positives from author/owner matches.\n\n"
+                    "When to use: You know the podcast name (exact or approximate), want to avoid author name "
+                    "confusion (e.g., 'Jordan' could match hosts named Jordan or podcasts titled 'Jordan'), need "
+                    "precise title matching, or want to reduce noise in results. Perfect for queries like "
+                    "'Find The Daily podcast' or 'Search for Serial podcast'.\n\n"
+                    "Advantages over search_podcasts: Higher precision when podcast names are known, eliminates "
+                    "matches from author/owner fields that might share words with titles, cleaner results for "
+                    "title-specific queries. Returns feed IDs for use with get_podcast_details or get_episodes.\n\n"
+                    "Use search_podcasts instead for general discovery, creator-based searches, or when you're "
+                    "unsure whether your query is a podcast title or creator name."
                 ),
                 inputSchema={
                     "type": "object",
@@ -201,11 +216,18 @@ def create_server() -> Server:
             Tool(
                 name="search_episodes_by_person",
                 description=(
-                    "Search for podcast episodes that mention or feature a specific person. "
-                    "Searches person tags, episode titles, descriptions, and feed metadata for matches. "
-                    "Use this to find episodes featuring specific guests, hosts, or people mentioned "
-                    "in content. Returns episode information including episode title, podcast name, "
-                    "and descriptions."
+                    "SPECIALIZED TOOL for finding podcast episodes featuring specific people - significantly more "
+                    "accurate than web search for guest appearances and host queries. Searches structured person "
+                    "metadata (podcast:person tags) unavailable in web search results, plus episode titles, "
+                    "descriptions, and feed metadata.\n\n"
+                    "When to use: Queries like 'Find episodes with [guest name]', 'What podcasts has [person] "
+                    "appeared on?', 'Episodes featuring [expert/celebrity]', or any person-centric episode search. "
+                    "Essential for discovering guest appearances, tracking specific hosts, or finding interviews.\n\n"
+                    "Advantages over web search: Access to structured podcast:person tags with role information "
+                    "(guest, host, etc.), comprehensive cross-podcast search, and reduced noise from general "
+                    "mentions. Returns episode IDs for use with get_episode_details to see full person metadata, "
+                    "timestamps, and additional context.\n\n"
+                    "Use search_podcasts instead for finding podcasts by creator/author name."
                 ),
                 inputSchema={
                     "type": "object",
@@ -244,9 +266,16 @@ def create_server() -> Server:
             Tool(
                 name="get_episodes",
                 description=(
-                    "Retrieve all episodes from a specific podcast feed in reverse chronological order. "
-                    "Use this to browse episode content after finding a podcast via search. "
-                    "Returns episode information including titles, descriptions, publish dates, and links."
+                    "BROWSING TOOL - retrieve all episodes from a specific podcast in reverse chronological order "
+                    "(newest first). This is step 2 in the typical workflow after finding a podcast via search_podcasts "
+                    "or search_podcasts_by_title. Provides structured episode data without manually parsing RSS feeds.\n\n"
+                    "When to use: Browsing recent episodes from a known podcast, finding episodes in date ranges "
+                    "(via 'since' parameter), getting episode IDs for detailed lookups, exploring a podcast's content "
+                    "catalog, or checking what episodes are available. Requires feed ID from search results.\n\n"
+                    "Returns: Episode titles, descriptions, publish dates, audio URLs, duration, images, and episode IDs. "
+                    "Use episode IDs with get_episode_details to access chapters, transcripts, person tags, and other "
+                    "detailed metadata not included in episode lists.\n\n"
+                    "Typical workflow: search_podcasts → get_episodes → get_episode_details"
                 ),
                 inputSchema={
                     "type": "object",
@@ -291,10 +320,20 @@ def create_server() -> Server:
             Tool(
                 name="get_podcast_details",
                 description=(
-                    "Get complete metadata for a specific podcast by feed ID. "
-                    "Provides comprehensive details including full description, funding info, "
-                    "value blocks, categories, and more. Use this to get detailed information "
-                    "about a podcast beyond basic search results."
+                    "DEEP DIVE TOOL - get comprehensive podcast metadata beyond what search results provide. "
+                    "Use this when search results don't include enough information about a podcast or when you "
+                    "need specific technical/business metadata unavailable in search.\n\n"
+                    "When to use: Researching podcast monetization strategies, checking value-for-value payment "
+                    "details (Lightning/Hive/WebMonetization), getting complete untruncated descriptions for analysis, "
+                    "verifying podcast status/health (crawl errors, last update time), accessing complete category "
+                    "taxonomy, checking locked status, or gathering technical metadata (generator, content type). "
+                    "Requires feed ID from search results.\n\n"
+                    "Provides data unavailable in search: Complete description (search truncates long text), "
+                    "detailed funding/donation information, value block configuration, full technical metadata "
+                    "(last crawl/parse times, HTTP status, errors), locked status, complete category structure, "
+                    "and generator information.\n\n"
+                    "Use search_podcasts instead for initial discovery. This tool is for detailed research on "
+                    "specific podcasts you've already identified."
                 ),
                 inputSchema={
                     "type": "object",
@@ -313,10 +352,21 @@ def create_server() -> Server:
             Tool(
                 name="get_episode_details",
                 description=(
-                    "Get complete metadata for a specific episode by episode ID. "
-                    "Provides detailed information including person tags, chapters, transcripts, "
-                    "value blocks, soundbites, and more. Use this to view full details of episodes "
-                    "found via search or episode listing."
+                    "EPISODE DEEP DIVE TOOL - get comprehensive episode metadata including features unavailable in "
+                    "episode lists: chapter markers with timestamps, transcript URLs, structured person tags "
+                    "(guests/hosts with roles), soundbite clips, and social interaction links.\n\n"
+                    "When to use: Analyzing episode content structure, finding chapter timestamps for navigation, "
+                    "accessing transcript URLs for full episode text, getting detailed guest/host information with "
+                    "roles, finding soundbite clips (highlight moments), accessing social discussion links "
+                    "(ActivityPub, etc.), or researching episode-specific metadata. Requires episode ID from "
+                    "get_episodes or search_episodes_by_person results.\n\n"
+                    "Provides data unavailable in episode lists: Chapter markers (timestamps, titles, URLs/images), "
+                    "transcript URLs (full episode text), structured person tags with roles (guest, host, etc.), "
+                    "soundbites (highlighted clips with timestamps), social interaction URIs (for comments/discussion), "
+                    "season/episode numbers, episode type, and complete untruncated descriptions.\n\n"
+                    "Use get_episodes instead for browsing episode lists. This tool is for detailed analysis of "
+                    "specific episodes you've already identified.\n\n"
+                    "Typical workflow: search_podcasts → get_episodes → get_episode_details"
                 ),
                 inputSchema={
                     "type": "object",
