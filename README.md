@@ -60,7 +60,23 @@ To use this MCP server with Claude Desktop, add the following to your Claude Des
 }
 ```
 
-Replace `/absolute/path/to/podcast-index-mcp` with the actual path to this repository.
+**Important configuration notes:**
+
+1. **Get the absolute path** to this repository:
+   - **MacOS/Linux**: Run `pwd` in the repository directory
+   - **Windows**: Run `cd` in the repository directory
+
+2. **Windows users**: Use double backslashes (`\\`) or forward slashes (`/`) in the path:
+   ```json
+   "C:\\Users\\YourName\\podcast-index-mcp"  // or
+   "C:/Users/YourName/podcast-index-mcp"
+   ```
+
+3. **If `uv` command is not found**, use the full path to the `uv` executable:
+   - Find it with: `which uv` (MacOS/Linux) or `where uv` (Windows)
+   - Example: `"command": "/Users/yourname/.local/bin/uv"`
+
+Replace `/absolute/path/to/podcast-index-mcp` with your actual repository path and add your API credentials.
 
 ## Usage
 
