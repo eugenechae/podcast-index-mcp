@@ -16,6 +16,7 @@ from podcast_index.client import (
     build_search_by_person_url,
     build_search_by_title_url,
     build_search_url,
+    get_client,
     get_episode_details,
     get_episodes,
     get_podcast_details,
@@ -23,6 +24,21 @@ from podcast_index.client import (
     search_podcasts,
     search_podcasts_by_title,
 )
+import podcast_index.client
+
+
+def test_get_client_reuses_same_client():
+    """get_client should return the same client instance on subsequent calls (singleton pattern)."""
+    # Reset the client to ensure clean state
+    podcast_index.client._http_client = None
+
+    client1 = get_client()
+    client2 = get_client()
+    client3 = get_client()
+
+    # All calls should return the exact same instance
+    assert client1 is client2
+    assert client2 is client3
 
 
 def test_build_search_url_with_required_params():
@@ -114,13 +130,10 @@ async def test_search_podcasts_makes_request_with_auth_headers():
         "description": "Found matches for 'test'",
     }
 
-    with patch("httpx.AsyncClient") as mock_client_class:
-        mock_client = AsyncMock()
-        mock_client.__aenter__.return_value = mock_client
-        mock_client.__aexit__.return_value = None
-        mock_client.get.return_value = mock_response
-        mock_client_class.return_value = mock_client
+    mock_client = AsyncMock()
+    mock_client.get.return_value = mock_response
 
+    with patch("podcast_index.client.get_client", return_value=mock_client):
         await search_podcasts(api_key, api_secret, params)
 
         mock_client.get.assert_called_once()
@@ -159,13 +172,10 @@ async def test_search_podcasts_returns_successful_response():
     mock_response.status_code = 200
     mock_response.json.return_value = expected_response
 
-    with patch("httpx.AsyncClient") as mock_client_class:
-        mock_client = AsyncMock()
-        mock_client.__aenter__.return_value = mock_client
-        mock_client.__aexit__.return_value = None
-        mock_client.get.return_value = mock_response
-        mock_client_class.return_value = mock_client
+    mock_client = AsyncMock()
+    mock_client.get.return_value = mock_response
 
+    with patch("podcast_index.client.get_client", return_value=mock_client):
         result = await search_podcasts(api_key, api_secret, params)
 
         assert result == expected_response
@@ -180,13 +190,10 @@ async def test_search_podcasts_handles_http_errors():
     api_secret = "test_secret"
     params = SearchParams(q="test")
 
-    with patch("httpx.AsyncClient") as mock_client_class:
-        mock_client = AsyncMock()
-        mock_client.__aenter__.return_value = mock_client
-        mock_client.__aexit__.return_value = None
-        mock_client.get.side_effect = httpx.HTTPError("Network error")
-        mock_client_class.return_value = mock_client
+    mock_client = AsyncMock()
+    mock_client.get.side_effect = httpx.HTTPError("Network error")
 
+    with patch("podcast_index.client.get_client", return_value=mock_client):
         with pytest.raises(httpx.HTTPError):
             await search_podcasts(api_key, api_secret, params)
 
@@ -204,12 +211,15 @@ async def test_search_podcasts_handles_unauthorized():
         "Unauthorized", request=Mock(), response=mock_response
     )
 
-    with patch("httpx.AsyncClient") as mock_client_class:
-        mock_client = AsyncMock()
-        mock_client.__aenter__.return_value = mock_client
-        mock_client.__aexit__.return_value = None
-        mock_client.get.return_value = mock_response
-        mock_client_class.return_value = mock_client
+    mock_client = AsyncMock()
+
+
+    mock_client.get.return_value = mock_response
+
+
+
+    with patch("podcast_index.client.get_client", return_value=mock_client):
+
 
         with pytest.raises(httpx.HTTPStatusError):
             await search_podcasts(api_key, api_secret, params)
@@ -234,12 +244,15 @@ async def test_search_podcasts_with_empty_results():
     mock_response.status_code = 200
     mock_response.json.return_value = expected_response
 
-    with patch("httpx.AsyncClient") as mock_client_class:
-        mock_client = AsyncMock()
-        mock_client.__aenter__.return_value = mock_client
-        mock_client.__aexit__.return_value = None
-        mock_client.get.return_value = mock_response
-        mock_client_class.return_value = mock_client
+    mock_client = AsyncMock()
+
+
+    mock_client.get.return_value = mock_response
+
+
+
+    with patch("podcast_index.client.get_client", return_value=mock_client):
+
 
         result = await search_podcasts(api_key, api_secret, params)
 
@@ -258,12 +271,15 @@ async def test_search_podcasts_handles_malformed_json():
     mock_response.status_code = 200
     mock_response.json.side_effect = ValueError("Invalid JSON")
 
-    with patch("httpx.AsyncClient") as mock_client_class:
-        mock_client = AsyncMock()
-        mock_client.__aenter__.return_value = mock_client
-        mock_client.__aexit__.return_value = None
-        mock_client.get.return_value = mock_response
-        mock_client_class.return_value = mock_client
+    mock_client = AsyncMock()
+
+
+    mock_client.get.return_value = mock_response
+
+
+
+    with patch("podcast_index.client.get_client", return_value=mock_client):
+
 
         with pytest.raises(ValueError):
             await search_podcasts(api_key, api_secret, params)
@@ -356,12 +372,15 @@ async def test_search_podcasts_by_title_makes_request_with_auth_headers():
         "description": "Found matches for 'Serial'",
     }
 
-    with patch("httpx.AsyncClient") as mock_client_class:
-        mock_client = AsyncMock()
-        mock_client.__aenter__.return_value = mock_client
-        mock_client.__aexit__.return_value = None
-        mock_client.get.return_value = mock_response
-        mock_client_class.return_value = mock_client
+    mock_client = AsyncMock()
+
+
+    mock_client.get.return_value = mock_response
+
+
+
+    with patch("podcast_index.client.get_client", return_value=mock_client):
+
 
         await search_podcasts_by_title(api_key, api_secret, params)
 
@@ -401,12 +420,15 @@ async def test_search_podcasts_by_title_returns_successful_response():
     mock_response.status_code = 200
     mock_response.json.return_value = expected_response
 
-    with patch("httpx.AsyncClient") as mock_client_class:
-        mock_client = AsyncMock()
-        mock_client.__aenter__.return_value = mock_client
-        mock_client.__aexit__.return_value = None
-        mock_client.get.return_value = mock_response
-        mock_client_class.return_value = mock_client
+    mock_client = AsyncMock()
+
+
+    mock_client.get.return_value = mock_response
+
+
+
+    with patch("podcast_index.client.get_client", return_value=mock_client):
+
 
         result = await search_podcasts_by_title(api_key, api_secret, params)
 
@@ -422,12 +444,15 @@ async def test_search_podcasts_by_title_handles_http_errors():
     api_secret = "test_secret"
     params = SearchByTitleParams(q="test")
 
-    with patch("httpx.AsyncClient") as mock_client_class:
-        mock_client = AsyncMock()
-        mock_client.__aenter__.return_value = mock_client
-        mock_client.__aexit__.return_value = None
-        mock_client.get.side_effect = httpx.HTTPError("Network error")
-        mock_client_class.return_value = mock_client
+    mock_client = AsyncMock()
+
+
+    mock_client.get.side_effect = httpx.HTTPError("Network error")
+
+
+
+    with patch("podcast_index.client.get_client", return_value=mock_client):
+
 
         with pytest.raises(httpx.HTTPError):
             await search_podcasts_by_title(api_key, api_secret, params)
@@ -452,12 +477,15 @@ async def test_search_podcasts_by_title_with_empty_results():
     mock_response.status_code = 200
     mock_response.json.return_value = expected_response
 
-    with patch("httpx.AsyncClient") as mock_client_class:
-        mock_client = AsyncMock()
-        mock_client.__aenter__.return_value = mock_client
-        mock_client.__aexit__.return_value = None
-        mock_client.get.return_value = mock_response
-        mock_client_class.return_value = mock_client
+    mock_client = AsyncMock()
+
+
+    mock_client.get.return_value = mock_response
+
+
+
+    with patch("podcast_index.client.get_client", return_value=mock_client):
+
 
         result = await search_podcasts_by_title(api_key, api_secret, params)
 
@@ -530,12 +558,15 @@ async def test_search_episodes_by_person_makes_request_with_auth_headers():
         "description": "Found matches for 'Adam Curry'",
     }
 
-    with patch("httpx.AsyncClient") as mock_client_class:
-        mock_client = AsyncMock()
-        mock_client.__aenter__.return_value = mock_client
-        mock_client.__aexit__.return_value = None
-        mock_client.get.return_value = mock_response
-        mock_client_class.return_value = mock_client
+    mock_client = AsyncMock()
+
+
+    mock_client.get.return_value = mock_response
+
+
+
+    with patch("podcast_index.client.get_client", return_value=mock_client):
+
 
         await search_episodes_by_person(api_key, api_secret, params)
 
@@ -575,12 +606,15 @@ async def test_search_episodes_by_person_returns_successful_response():
     mock_response.status_code = 200
     mock_response.json.return_value = expected_response
 
-    with patch("httpx.AsyncClient") as mock_client_class:
-        mock_client = AsyncMock()
-        mock_client.__aenter__.return_value = mock_client
-        mock_client.__aexit__.return_value = None
-        mock_client.get.return_value = mock_response
-        mock_client_class.return_value = mock_client
+    mock_client = AsyncMock()
+
+
+    mock_client.get.return_value = mock_response
+
+
+
+    with patch("podcast_index.client.get_client", return_value=mock_client):
+
 
         result = await search_episodes_by_person(api_key, api_secret, params)
 
@@ -596,12 +630,15 @@ async def test_search_episodes_by_person_handles_http_errors():
     api_secret = "test_secret"
     params = SearchByPersonParams(q="test")
 
-    with patch("httpx.AsyncClient") as mock_client_class:
-        mock_client = AsyncMock()
-        mock_client.__aenter__.return_value = mock_client
-        mock_client.__aexit__.return_value = None
-        mock_client.get.side_effect = httpx.HTTPError("Network error")
-        mock_client_class.return_value = mock_client
+    mock_client = AsyncMock()
+
+
+    mock_client.get.side_effect = httpx.HTTPError("Network error")
+
+
+
+    with patch("podcast_index.client.get_client", return_value=mock_client):
+
 
         with pytest.raises(httpx.HTTPError):
             await search_episodes_by_person(api_key, api_secret, params)
@@ -626,12 +663,15 @@ async def test_search_episodes_by_person_with_empty_results():
     mock_response.status_code = 200
     mock_response.json.return_value = expected_response
 
-    with patch("httpx.AsyncClient") as mock_client_class:
-        mock_client = AsyncMock()
-        mock_client.__aenter__.return_value = mock_client
-        mock_client.__aexit__.return_value = None
-        mock_client.get.return_value = mock_response
-        mock_client_class.return_value = mock_client
+    mock_client = AsyncMock()
+
+
+    mock_client.get.return_value = mock_response
+
+
+
+    with patch("podcast_index.client.get_client", return_value=mock_client):
+
 
         result = await search_episodes_by_person(api_key, api_secret, params)
 
@@ -685,12 +725,15 @@ async def test_get_episodes_returns_successful_response():
     mock_response.status_code = 200
     mock_response.json.return_value = expected_response
 
-    with patch("httpx.AsyncClient") as mock_client_class:
-        mock_client = AsyncMock()
-        mock_client.__aenter__.return_value = mock_client
-        mock_client.__aexit__.return_value = None
-        mock_client.get.return_value = mock_response
-        mock_client_class.return_value = mock_client
+    mock_client = AsyncMock()
+
+
+    mock_client.get.return_value = mock_response
+
+
+
+    with patch("podcast_index.client.get_client", return_value=mock_client):
+
 
         result = await get_episodes(api_key, api_secret, params)
 
@@ -705,12 +748,15 @@ async def test_get_episodes_handles_http_errors():
     api_secret = "test_secret"
     params = GetEpisodesParams(id=123)
 
-    with patch("httpx.AsyncClient") as mock_client_class:
-        mock_client = AsyncMock()
-        mock_client.__aenter__.return_value = mock_client
-        mock_client.__aexit__.return_value = None
-        mock_client.get.side_effect = httpx.HTTPError("Network error")
-        mock_client_class.return_value = mock_client
+    mock_client = AsyncMock()
+
+
+    mock_client.get.side_effect = httpx.HTTPError("Network error")
+
+
+
+    with patch("podcast_index.client.get_client", return_value=mock_client):
+
 
         with pytest.raises(httpx.HTTPError):
             await get_episodes(api_key, api_secret, params)
@@ -747,12 +793,15 @@ async def test_get_podcast_details_returns_successful_response():
     mock_response.status_code = 200
     mock_response.json.return_value = expected_response
 
-    with patch("httpx.AsyncClient") as mock_client_class:
-        mock_client = AsyncMock()
-        mock_client.__aenter__.return_value = mock_client
-        mock_client.__aexit__.return_value = None
-        mock_client.get.return_value = mock_response
-        mock_client_class.return_value = mock_client
+    mock_client = AsyncMock()
+
+
+    mock_client.get.return_value = mock_response
+
+
+
+    with patch("podcast_index.client.get_client", return_value=mock_client):
+
 
         result = await get_podcast_details(api_key, api_secret, params)
 
@@ -767,12 +816,15 @@ async def test_get_podcast_details_handles_http_errors():
     api_secret = "test_secret"
     params = GetPodcastDetailsParams(id=123)
 
-    with patch("httpx.AsyncClient") as mock_client_class:
-        mock_client = AsyncMock()
-        mock_client.__aenter__.return_value = mock_client
-        mock_client.__aexit__.return_value = None
-        mock_client.get.side_effect = httpx.HTTPError("Network error")
-        mock_client_class.return_value = mock_client
+    mock_client = AsyncMock()
+
+
+    mock_client.get.side_effect = httpx.HTTPError("Network error")
+
+
+
+    with patch("podcast_index.client.get_client", return_value=mock_client):
+
 
         with pytest.raises(httpx.HTTPError):
             await get_podcast_details(api_key, api_secret, params)
@@ -819,12 +871,15 @@ async def test_get_episode_details_returns_successful_response():
     mock_response.status_code = 200
     mock_response.json.return_value = expected_response
 
-    with patch("httpx.AsyncClient") as mock_client_class:
-        mock_client = AsyncMock()
-        mock_client.__aenter__.return_value = mock_client
-        mock_client.__aexit__.return_value = None
-        mock_client.get.return_value = mock_response
-        mock_client_class.return_value = mock_client
+    mock_client = AsyncMock()
+
+
+    mock_client.get.return_value = mock_response
+
+
+
+    with patch("podcast_index.client.get_client", return_value=mock_client):
+
 
         result = await get_episode_details(api_key, api_secret, params)
 
@@ -839,12 +894,15 @@ async def test_get_episode_details_handles_http_errors():
     api_secret = "test_secret"
     params = GetEpisodeDetailsParams(id=123)
 
-    with patch("httpx.AsyncClient") as mock_client_class:
-        mock_client = AsyncMock()
-        mock_client.__aenter__.return_value = mock_client
-        mock_client.__aexit__.return_value = None
-        mock_client.get.side_effect = httpx.HTTPError("Network error")
-        mock_client_class.return_value = mock_client
+    mock_client = AsyncMock()
+
+
+    mock_client.get.side_effect = httpx.HTTPError("Network error")
+
+
+
+    with patch("podcast_index.client.get_client", return_value=mock_client):
+
 
         with pytest.raises(httpx.HTTPError):
             await get_episode_details(api_key, api_secret, params)
