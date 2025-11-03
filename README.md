@@ -67,8 +67,11 @@ To use this MCP server with Claude Desktop, add the following to your Claude Des
    - **Windows**: Run `cd` in the repository directory
 
 2. **Windows users**: Use double backslashes (`\\`) or forward slashes (`/`) in the path:
-   ```json
-   "C:\\Users\\YourName\\podcast-index-mcp"  // or
+   ```
+   "C:\\Users\\YourName\\podcast-index-mcp"
+   ```
+   Or alternatively:
+   ```
    "C:/Users/YourName/podcast-index-mcp"
    ```
 
