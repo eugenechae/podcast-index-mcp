@@ -8,6 +8,23 @@ import httpx
 from podcast_index.auth import generate_auth_headers
 
 
+# Shared HTTP client for connection pooling across requests
+_http_client: httpx.AsyncClient | None = None
+
+
+def get_client() -> httpx.AsyncClient:
+    """
+    Get or create the shared HTTP client for connection pooling.
+
+    Returns:
+        Shared AsyncClient instance that reuses connections to the same host
+    """
+    global _http_client
+    if _http_client is None:
+        _http_client = httpx.AsyncClient()
+    return _http_client
+
+
 class SearchParams(TypedDict, total=False):
     """
     Parameters for podcast search requests.
@@ -166,10 +183,10 @@ async def search_podcasts(
     url = build_search_url(params)
     headers = generate_auth_headers(api_key, api_secret)
 
-    async with httpx.AsyncClient() as client:
-        response = await client.get(url, headers=headers)
-        response.raise_for_status()
-        return response.json()
+    client = get_client()
+    response = await client.get(url, headers=headers)
+    response.raise_for_status()
+    return response.json()
 
 
 def build_search_by_title_url(params: SearchByTitleParams) -> str:
@@ -227,10 +244,10 @@ async def search_podcasts_by_title(
     url = build_search_by_title_url(params)
     headers = generate_auth_headers(api_key, api_secret)
 
-    async with httpx.AsyncClient() as client:
-        response = await client.get(url, headers=headers)
-        response.raise_for_status()
-        return response.json()
+    client = get_client()
+    response = await client.get(url, headers=headers)
+    response.raise_for_status()
+    return response.json()
 
 
 def build_search_by_person_url(params: SearchByPersonParams) -> str:
@@ -279,10 +296,10 @@ async def search_episodes_by_person(
     url = build_search_by_person_url(params)
     headers = generate_auth_headers(api_key, api_secret)
 
-    async with httpx.AsyncClient() as client:
-        response = await client.get(url, headers=headers)
-        response.raise_for_status()
-        return response.json()
+    client = get_client()
+    response = await client.get(url, headers=headers)
+    response.raise_for_status()
+    return response.json()
 
 
 def build_episodes_url(params: GetEpisodesParams) -> str:
@@ -334,10 +351,10 @@ async def get_episodes(
     url = build_episodes_url(params)
     headers = generate_auth_headers(api_key, api_secret)
 
-    async with httpx.AsyncClient() as client:
-        response = await client.get(url, headers=headers)
-        response.raise_for_status()
-        return response.json()
+    client = get_client()
+    response = await client.get(url, headers=headers)
+    response.raise_for_status()
+    return response.json()
 
 
 def build_podcast_details_url(params: GetPodcastDetailsParams) -> str:
@@ -380,10 +397,10 @@ async def get_podcast_details(
     url = build_podcast_details_url(params)
     headers = generate_auth_headers(api_key, api_secret)
 
-    async with httpx.AsyncClient() as client:
-        response = await client.get(url, headers=headers)
-        response.raise_for_status()
-        return response.json()
+    client = get_client()
+    response = await client.get(url, headers=headers)
+    response.raise_for_status()
+    return response.json()
 
 
 def build_episode_details_url(params: GetEpisodeDetailsParams) -> str:
@@ -429,7 +446,7 @@ async def get_episode_details(
     url = build_episode_details_url(params)
     headers = generate_auth_headers(api_key, api_secret)
 
-    async with httpx.AsyncClient() as client:
-        response = await client.get(url, headers=headers)
-        response.raise_for_status()
-        return response.json()
+    client = get_client()
+    response = await client.get(url, headers=headers)
+    response.raise_for_status()
+    return response.json()
