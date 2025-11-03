@@ -545,19 +545,24 @@ async def search_episodes_by_person_tool(
 
 def _format_duration(seconds: int) -> str:
     """
-    Convert seconds to human-readable duration format (HH:MM:SS).
+    Convert seconds to human-readable duration format.
 
     Args:
         seconds: Duration in seconds
 
     Returns:
-        Formatted duration string as HH:MM:SS
+        Formatted duration string as MM:SS for durations under 1 hour,
+        or HH:MM:SS for durations 1 hour or longer
     """
     duration = timedelta(seconds=seconds)
     total_secs = int(duration.total_seconds())
     hours, remainder = divmod(total_secs, 3600)
     minutes, secs = divmod(remainder, 60)
-    return f"{hours}:{minutes:02d}:{secs:02d}"
+
+    if hours > 0:
+        return f"{hours}:{minutes:02d}:{secs:02d}"
+    else:
+        return f"{minutes}:{secs:02d}"
 
 
 def format_episode_results(response: dict[str, Any]) -> str:
