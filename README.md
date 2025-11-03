@@ -200,7 +200,7 @@ These multi-tool workflows demonstrate the power of combining different endpoint
 
 #### 1. Person-Centric Discovery
 ```
-"Find episodes featuring Adam Curry, then show me complete details about the first result,
+"Find episodes featuring Jensen Huang, then show me complete details about the first result,
 including information about the podcast it's from."
 ```
 Tools used: `search_episodes_by_person` → `get_episode_details` → `get_podcast_details`
