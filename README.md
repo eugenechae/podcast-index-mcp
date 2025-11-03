@@ -21,7 +21,7 @@ An MCP (Model Context Protocol) server that provides access to the [Podcast Inde
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/eugenechae/podcast-index-mcp.git
 cd podcast-index-mcp
 ```
 
@@ -239,7 +239,7 @@ uv run ruff format .
 
 ```bash
 # Run the MCP server
-PYTHONPATH=src uv run python -m main
+uv run python src/main.py
 ```
 
 The server uses stdio transport and communicates via the MCP protocol.

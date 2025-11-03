@@ -1,11 +1,10 @@
 [project]
 name = "podcast-index-mcp"
 version = "0.1.0"
-description = "Add your description here"
+description = "MCP server providing AI assistants with access to the Podcast Index API for podcast search and discovery"
 readme = "README.md"
 requires-python = "==3.10.11"
 dependencies = [
-    "httpx==0.28.1",
     "mcp[cli]==1.20.0",
 ]
 

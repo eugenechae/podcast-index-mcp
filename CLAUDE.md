@@ -37,7 +37,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - Does documentation match implementation for security-critical features?
 
 ## Commands
-- Run application: `PYTHONPATH=src uv run uvicorn main:app --reload`
+- Run application: `uv run python src/main.py`
 - Run tests: `uv run pytest -n auto`
 - Type check: `uv run pyrefly check`
 - Lint code: `uv run ruff check .`
