@@ -4,7 +4,8 @@ import asyncio
 import logging
 import os
 from datetime import timedelta
-from typing import Any
+from functools import wraps
+from typing import Any, Callable
 
 import httpx
 from mcp.server import Server
@@ -38,6 +39,50 @@ if not _api_key or not _api_secret:
 
 API_KEY: str = _api_key
 API_SECRET: str = _api_secret
+
+
+def handle_api_errors(operation_name: str) -> Callable:
+    """
+    Decorator to handle API errors with consistent logging and error responses.
+
+    Args:
+        operation_name: Human-readable operation name for error messages
+
+    Returns:
+        Decorated function that handles httpx errors and returns TextContent responses
+    """
+
+    def decorator(func: Callable) -> Callable:
+        @wraps(func)
+        async def wrapper(*args: Any, **kwargs: Any) -> list[TextContent]:
+            try:
+                return await func(*args, **kwargs)
+
+            except httpx.HTTPStatusError as e:
+                error_msg = f"API request failed with status {e.response.status_code}"
+                if e.response.status_code == 401:
+                    error_msg += ": Invalid API credentials"
+                logger.exception(f"HTTP status error during {operation_name}")
+                return [TextContent(type="text", text=f"Error: {error_msg}")]
+
+            except httpx.HTTPError:
+                logger.exception(f"HTTP error during {operation_name}")
+                return [
+                    TextContent(
+                        type="text",
+                        text=f"Error: Network error while {operation_name}",
+                    )
+                ]
+
+            except Exception:
+                logger.exception(f"Unexpected error during {operation_name}")
+                return [
+                    TextContent(type="text", text="Error: An unexpected error occurred")
+                ]
+
+        return wrapper
+
+    return decorator
 
 
 def create_server() -> Server:
@@ -413,6 +458,7 @@ def create_server() -> Server:
     return server
 
 
+@handle_api_errors("podcast search")
 async def search_podcasts_tool(arguments: dict[str, Any]) -> list[TextContent]:
     """
     Execute podcast search and format results.
@@ -438,31 +484,12 @@ async def search_podcasts_tool(arguments: dict[str, Any]) -> list[TextContent]:
     if "similar" in arguments:
         params["similar"] = arguments["similar"]
 
-    try:
-        response = await search_podcasts(API_KEY, API_SECRET, params)
-        formatted_result = format_search_results(response)
-        return [TextContent(type="text", text=formatted_result)]
-
-    except httpx.HTTPStatusError as e:
-        error_msg = f"API request failed with status {e.response.status_code}"
-        if e.response.status_code == 401:
-            error_msg += ": Invalid API credentials"
-        logger.exception("HTTP status error during podcast search")
-        return [TextContent(type="text", text=f"Error: {error_msg}")]
-
-    except httpx.HTTPError:
-        logger.exception("HTTP error during podcast search")
-        return [
-            TextContent(
-                type="text", text="Error: Network error while searching podcasts"
-            )
-        ]
-
-    except Exception:
-        logger.exception("Unexpected error during podcast search")
-        return [TextContent(type="text", text="Error: An unexpected error occurred")]
+    response = await search_podcasts(API_KEY, API_SECRET, params)
+    formatted_result = format_search_results(response)
+    return [TextContent(type="text", text=formatted_result)]
 
 
+@handle_api_errors("podcast title search")
 async def search_podcasts_by_title_tool(arguments: dict[str, Any]) -> list[TextContent]:
     """
     Execute podcast title search and format results.
@@ -486,31 +513,12 @@ async def search_podcasts_by_title_tool(arguments: dict[str, Any]) -> list[TextC
     if "similar" in arguments:
         params["similar"] = arguments["similar"]
 
-    try:
-        response = await search_podcasts_by_title(API_KEY, API_SECRET, params)
-        formatted_result = format_search_results(response)
-        return [TextContent(type="text", text=formatted_result)]
-
-    except httpx.HTTPStatusError as e:
-        error_msg = f"API request failed with status {e.response.status_code}"
-        if e.response.status_code == 401:
-            error_msg += ": Invalid API credentials"
-        logger.exception("HTTP status error during podcast title search")
-        return [TextContent(type="text", text=f"Error: {error_msg}")]
-
-    except httpx.HTTPError:
-        logger.exception("HTTP error during podcast title search")
-        return [
-            TextContent(
-                type="text", text="Error: Network error while searching podcasts"
-            )
-        ]
-
-    except Exception:
-        logger.exception("Unexpected error during podcast title search")
-        return [TextContent(type="text", text="Error: An unexpected error occurred")]
+    response = await search_podcasts_by_title(API_KEY, API_SECRET, params)
+    formatted_result = format_search_results(response)
+    return [TextContent(type="text", text=formatted_result)]
 
 
+@handle_api_errors("episode search by person")
 async def search_episodes_by_person_tool(
     arguments: dict[str, Any],
 ) -> list[TextContent]:
@@ -530,29 +538,9 @@ async def search_episodes_by_person_tool(
     if "fulltext" in arguments:
         params["fulltext"] = arguments["fulltext"]
 
-    try:
-        response = await search_episodes_by_person(API_KEY, API_SECRET, params)
-        formatted_result = format_episode_results(response)
-        return [TextContent(type="text", text=formatted_result)]
-
-    except httpx.HTTPStatusError as e:
-        error_msg = f"API request failed with status {e.response.status_code}"
-        if e.response.status_code == 401:
-            error_msg += ": Invalid API credentials"
-        logger.exception("HTTP status error during episode search by person")
-        return [TextContent(type="text", text=f"Error: {error_msg}")]
-
-    except httpx.HTTPError:
-        logger.exception("HTTP error during episode search by person")
-        return [
-            TextContent(
-                type="text", text="Error: Network error while searching episodes"
-            )
-        ]
-
-    except Exception:
-        logger.exception("Unexpected error during episode search by person")
-        return [TextContent(type="text", text="Error: An unexpected error occurred")]
+    response = await search_episodes_by_person(API_KEY, API_SECRET, params)
+    formatted_result = format_episode_results(response)
+    return [TextContent(type="text", text=formatted_result)]
 
 
 def _format_duration(seconds: int) -> str:
@@ -648,6 +636,7 @@ def format_episode_results(response: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
+@handle_api_errors("retrieving episodes")
 async def get_episodes_tool(arguments: dict[str, Any]) -> list[TextContent]:
     """
     Execute get episodes and format results.
@@ -667,29 +656,9 @@ async def get_episodes_tool(arguments: dict[str, Any]) -> list[TextContent]:
     if "fulltext" in arguments:
         params["fulltext"] = arguments["fulltext"]
 
-    try:
-        response = await get_episodes(API_KEY, API_SECRET, params)
-        formatted_result = format_episode_results(response)
-        return [TextContent(type="text", text=formatted_result)]
-
-    except httpx.HTTPStatusError as e:
-        error_msg = f"API request failed with status {e.response.status_code}"
-        if e.response.status_code == 401:
-            error_msg += ": Invalid API credentials"
-        logger.exception("HTTP status error during get episodes")
-        return [TextContent(type="text", text=f"Error: {error_msg}")]
-
-    except httpx.HTTPError:
-        logger.exception("HTTP error during get episodes")
-        return [
-            TextContent(
-                type="text", text="Error: Network error while retrieving episodes"
-            )
-        ]
-
-    except Exception:
-        logger.exception("Unexpected error during get episodes")
-        return [TextContent(type="text", text="Error: An unexpected error occurred")]
+    response = await get_episodes(API_KEY, API_SECRET, params)
+    formatted_result = format_episode_results(response)
+    return [TextContent(type="text", text=formatted_result)]
 
 
 def format_podcast_details(response: dict[str, Any]) -> str:
@@ -794,6 +763,7 @@ def format_podcast_details(response: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
+@handle_api_errors("retrieving podcast details")
 async def get_podcast_details_tool(arguments: dict[str, Any]) -> list[TextContent]:
     """
     Execute get podcast details and format results.
@@ -806,30 +776,9 @@ async def get_podcast_details_tool(arguments: dict[str, Any]) -> list[TextConten
     """
     params = GetPodcastDetailsParams(id=arguments["id"])
 
-    try:
-        response = await get_podcast_details(API_KEY, API_SECRET, params)
-        formatted_result = format_podcast_details(response)
-        return [TextContent(type="text", text=formatted_result)]
-
-    except httpx.HTTPStatusError as e:
-        error_msg = f"API request failed with status {e.response.status_code}"
-        if e.response.status_code == 401:
-            error_msg += ": Invalid API credentials"
-        logger.exception("HTTP status error during get podcast details")
-        return [TextContent(type="text", text=f"Error: {error_msg}")]
-
-    except httpx.HTTPError:
-        logger.exception("HTTP error during get podcast details")
-        return [
-            TextContent(
-                type="text",
-                text="Error: Network error while retrieving podcast details",
-            )
-        ]
-
-    except Exception:
-        logger.exception("Unexpected error during get podcast details")
-        return [TextContent(type="text", text="Error: An unexpected error occurred")]
+    response = await get_podcast_details(API_KEY, API_SECRET, params)
+    formatted_result = format_podcast_details(response)
+    return [TextContent(type="text", text=formatted_result)]
 
 
 def format_episode_details(response: dict[str, Any]) -> str:
@@ -939,6 +888,7 @@ def format_episode_details(response: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
+@handle_api_errors("retrieving episode details")
 async def get_episode_details_tool(arguments: dict[str, Any]) -> list[TextContent]:
     """
     Execute get episode details and format results.
@@ -954,30 +904,9 @@ async def get_episode_details_tool(arguments: dict[str, Any]) -> list[TextConten
     if "fulltext" in arguments:
         params["fulltext"] = arguments["fulltext"]
 
-    try:
-        response = await get_episode_details(API_KEY, API_SECRET, params)
-        formatted_result = format_episode_details(response)
-        return [TextContent(type="text", text=formatted_result)]
-
-    except httpx.HTTPStatusError as e:
-        error_msg = f"API request failed with status {e.response.status_code}"
-        if e.response.status_code == 401:
-            error_msg += ": Invalid API credentials"
-        logger.exception("HTTP status error during get episode details")
-        return [TextContent(type="text", text=f"Error: {error_msg}")]
-
-    except httpx.HTTPError:
-        logger.exception("HTTP error during get episode details")
-        return [
-            TextContent(
-                type="text",
-                text="Error: Network error while retrieving episode details",
-            )
-        ]
-
-    except Exception:
-        logger.exception("Unexpected error during get episode details")
-        return [TextContent(type="text", text="Error: An unexpected error occurred")]
+    response = await get_episode_details(API_KEY, API_SECRET, params)
+    formatted_result = format_episode_details(response)
+    return [TextContent(type="text", text=formatted_result)]
 
 
 def format_search_results(response: dict[str, Any]) -> str:
