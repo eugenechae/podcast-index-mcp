@@ -1005,7 +1005,7 @@ def format_search_results(response: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-async def main():
+async def run_server():
     """Run the MCP server."""
     from mcp.server.stdio import stdio_server
 
@@ -1017,5 +1017,10 @@ async def main():
         )
 
 
+def main():
+    """Entry point for installed package."""
+    asyncio.run(run_server())
+
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()

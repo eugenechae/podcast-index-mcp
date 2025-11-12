@@ -1,12 +1,32 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "podcast-index-mcp"
 version = "0.1.0"
 description = "MCP server providing AI assistants with access to the Podcast Index API for podcast search and discovery"
 readme = "README.md"
-requires-python = "==3.10.11"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+keywords = ["mcp", "podcast", "podcast-index", "model-context-protocol"]
 dependencies = [
     "mcp[cli]==1.20.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/eugenechae/podcast-index-mcp"
+Repository = "https://github.com/eugenechae/podcast-index-mcp"
+Issues = "https://github.com/eugenechae/podcast-index-mcp/issues"
+
+[project.scripts]
+podcast-index-mcp = "podcast_index.main:main"
+
+[tool.uv]
+package = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/podcast_index"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

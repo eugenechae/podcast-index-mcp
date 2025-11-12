@@ -8,7 +8,7 @@ from mcp.types import TextContent
 os.environ["PODCAST_INDEX_API_KEY"] = "test_key"
 os.environ["PODCAST_INDEX_API_SECRET"] = "test_secret"
 
-from main import (
+from podcast_index.main import (
     format_episode_details,
     format_episode_results,
     format_podcast_details,
@@ -166,7 +166,9 @@ async def test_search_podcasts_tool_with_valid_query():
         "query": "python",
     }
 
-    with patch("main.search_podcasts", new_callable=AsyncMock) as mock_search:
+    with patch(
+        "podcast_index.main.search_podcasts", new_callable=AsyncMock
+    ) as mock_search:
         mock_search.return_value = mock_response
 
         arguments = {"q": "python"}
@@ -183,7 +185,9 @@ async def test_search_podcasts_tool_with_optional_params():
     """search_podcasts_tool should pass optional parameters to API client."""
     mock_response = {"status": "true", "feeds": [], "count": 0, "query": "test"}
 
-    with patch("main.search_podcasts", new_callable=AsyncMock) as mock_search:
+    with patch(
+        "podcast_index.main.search_podcasts", new_callable=AsyncMock
+    ) as mock_search:
         mock_search.return_value = mock_response
 
         arguments = {
@@ -213,7 +217,9 @@ async def test_search_podcasts_tool_handles_empty_results():
         "description": "No matches found",
     }
 
-    with patch("main.search_podcasts", new_callable=AsyncMock) as mock_search:
+    with patch(
+        "podcast_index.main.search_podcasts", new_callable=AsyncMock
+    ) as mock_search:
         mock_search.return_value = mock_response
 
         arguments = {"q": "nonexistent"}
@@ -227,7 +233,9 @@ async def test_search_podcasts_tool_handles_empty_results():
 @pytest.mark.asyncio
 async def test_search_podcasts_tool_handles_http_errors():
     """search_podcasts_tool should handle HTTP errors gracefully."""
-    with patch("main.search_podcasts", new_callable=AsyncMock) as mock_search:
+    with patch(
+        "podcast_index.main.search_podcasts", new_callable=AsyncMock
+    ) as mock_search:
         mock_search.side_effect = httpx.HTTPError("Network error")
 
         arguments = {"q": "test"}
@@ -247,7 +255,9 @@ async def test_search_podcasts_tool_handles_auth_errors():
     mock_response = Mock()
     mock_response.status_code = 401
 
-    with patch("main.search_podcasts", new_callable=AsyncMock) as mock_search:
+    with patch(
+        "podcast_index.main.search_podcasts", new_callable=AsyncMock
+    ) as mock_search:
         mock_search.side_effect = httpx.HTTPStatusError(
             "Unauthorized", request=Mock(), response=mock_response
         )
@@ -269,7 +279,9 @@ async def test_search_podcasts_tool_handles_server_errors():
     mock_response = Mock()
     mock_response.status_code = 500
 
-    with patch("main.search_podcasts", new_callable=AsyncMock) as mock_search:
+    with patch(
+        "podcast_index.main.search_podcasts", new_callable=AsyncMock
+    ) as mock_search:
         mock_search.side_effect = httpx.HTTPStatusError(
             "Internal Server Error", request=Mock(), response=mock_response
         )
@@ -286,7 +298,9 @@ async def test_search_podcasts_tool_handles_server_errors():
 @pytest.mark.asyncio
 async def test_search_podcasts_tool_handles_unexpected_errors():
     """search_podcasts_tool should handle unexpected errors gracefully."""
-    with patch("main.search_podcasts", new_callable=AsyncMock) as mock_search:
+    with patch(
+        "podcast_index.main.search_podcasts", new_callable=AsyncMock
+    ) as mock_search:
         mock_search.side_effect = ValueError("Unexpected error")
 
         arguments = {"q": "test"}
@@ -315,7 +329,9 @@ async def test_search_podcasts_by_title_tool_with_valid_query():
         "query": "Serial",
     }
 
-    with patch("main.search_podcasts_by_title", new_callable=AsyncMock) as mock_search:
+    with patch(
+        "podcast_index.main.search_podcasts_by_title", new_callable=AsyncMock
+    ) as mock_search:
         mock_search.return_value = mock_response
 
         arguments = {"q": "Serial"}
@@ -332,7 +348,9 @@ async def test_search_podcasts_by_title_tool_with_optional_params():
     """search_podcasts_by_title_tool should pass optional parameters to API client."""
     mock_response = {"status": "true", "feeds": [], "count": 0, "query": "test"}
 
-    with patch("main.search_podcasts_by_title", new_callable=AsyncMock) as mock_search:
+    with patch(
+        "podcast_index.main.search_podcasts_by_title", new_callable=AsyncMock
+    ) as mock_search:
         mock_search.return_value = mock_response
 
         arguments = {
@@ -366,7 +384,9 @@ async def test_search_podcasts_by_title_tool_handles_empty_results():
         "description": "No matches found",
     }
 
-    with patch("main.search_podcasts_by_title", new_callable=AsyncMock) as mock_search:
+    with patch(
+        "podcast_index.main.search_podcasts_by_title", new_callable=AsyncMock
+    ) as mock_search:
         mock_search.return_value = mock_response
 
         arguments = {"q": "nonexistent"}
@@ -380,7 +400,9 @@ async def test_search_podcasts_by_title_tool_handles_empty_results():
 @pytest.mark.asyncio
 async def test_search_podcasts_by_title_tool_handles_http_errors():
     """search_podcasts_by_title_tool should handle HTTP errors gracefully."""
-    with patch("main.search_podcasts_by_title", new_callable=AsyncMock) as mock_search:
+    with patch(
+        "podcast_index.main.search_podcasts_by_title", new_callable=AsyncMock
+    ) as mock_search:
         mock_search.side_effect = httpx.HTTPError("Network error")
 
         arguments = {"q": "test"}
@@ -400,7 +422,9 @@ async def test_search_podcasts_by_title_tool_handles_auth_errors():
     mock_response = Mock()
     mock_response.status_code = 401
 
-    with patch("main.search_podcasts_by_title", new_callable=AsyncMock) as mock_search:
+    with patch(
+        "podcast_index.main.search_podcasts_by_title", new_callable=AsyncMock
+    ) as mock_search:
         mock_search.side_effect = httpx.HTTPStatusError(
             "Unauthorized", request=Mock(), response=mock_response
         )
@@ -417,7 +441,9 @@ async def test_search_podcasts_by_title_tool_handles_auth_errors():
 @pytest.mark.asyncio
 async def test_search_podcasts_by_title_tool_handles_unexpected_errors():
     """search_podcasts_by_title_tool should handle unexpected errors gracefully."""
-    with patch("main.search_podcasts_by_title", new_callable=AsyncMock) as mock_search:
+    with patch(
+        "podcast_index.main.search_podcasts_by_title", new_callable=AsyncMock
+    ) as mock_search:
         mock_search.side_effect = ValueError("Unexpected error")
 
         arguments = {"q": "test"}
@@ -573,7 +599,9 @@ async def test_search_episodes_by_person_tool_with_valid_query():
         "query": "Adam Curry",
     }
 
-    with patch("main.search_episodes_by_person", new_callable=AsyncMock) as mock_search:
+    with patch(
+        "podcast_index.main.search_episodes_by_person", new_callable=AsyncMock
+    ) as mock_search:
         mock_search.return_value = mock_response
 
         arguments = {"q": "Adam Curry"}
@@ -590,7 +618,9 @@ async def test_search_episodes_by_person_tool_with_optional_params():
     """search_episodes_by_person_tool should pass optional parameters to API client."""
     mock_response = {"status": "true", "items": [], "count": 0, "query": "test"}
 
-    with patch("main.search_episodes_by_person", new_callable=AsyncMock) as mock_search:
+    with patch(
+        "podcast_index.main.search_episodes_by_person", new_callable=AsyncMock
+    ) as mock_search:
         mock_search.return_value = mock_response
 
         arguments = {"q": "test", "max": 30, "fulltext": True}
@@ -614,7 +644,9 @@ async def test_search_episodes_by_person_tool_handles_empty_results():
         "description": "No matches found",
     }
 
-    with patch("main.search_episodes_by_person", new_callable=AsyncMock) as mock_search:
+    with patch(
+        "podcast_index.main.search_episodes_by_person", new_callable=AsyncMock
+    ) as mock_search:
         mock_search.return_value = mock_response
 
         arguments = {"q": "nonexistent"}
@@ -628,7 +660,9 @@ async def test_search_episodes_by_person_tool_handles_empty_results():
 @pytest.mark.asyncio
 async def test_search_episodes_by_person_tool_handles_http_errors():
     """search_episodes_by_person_tool should handle HTTP errors gracefully."""
-    with patch("main.search_episodes_by_person", new_callable=AsyncMock) as mock_search:
+    with patch(
+        "podcast_index.main.search_episodes_by_person", new_callable=AsyncMock
+    ) as mock_search:
         mock_search.side_effect = httpx.HTTPError("Network error")
 
         arguments = {"q": "test"}
@@ -648,7 +682,9 @@ async def test_search_episodes_by_person_tool_handles_auth_errors():
     mock_response = Mock()
     mock_response.status_code = 401
 
-    with patch("main.search_episodes_by_person", new_callable=AsyncMock) as mock_search:
+    with patch(
+        "podcast_index.main.search_episodes_by_person", new_callable=AsyncMock
+    ) as mock_search:
         mock_search.side_effect = httpx.HTTPStatusError(
             "Unauthorized", request=Mock(), response=mock_response
         )
@@ -665,7 +701,9 @@ async def test_search_episodes_by_person_tool_handles_auth_errors():
 @pytest.mark.asyncio
 async def test_search_episodes_by_person_tool_handles_unexpected_errors():
     """search_episodes_by_person_tool should handle unexpected errors gracefully."""
-    with patch("main.search_episodes_by_person", new_callable=AsyncMock) as mock_search:
+    with patch(
+        "podcast_index.main.search_episodes_by_person", new_callable=AsyncMock
+    ) as mock_search:
         mock_search.side_effect = ValueError("Unexpected error")
 
         arguments = {"q": "test"}
@@ -693,7 +731,7 @@ async def test_get_episodes_tool_with_valid_id():
         "feed": {"id": 456, "title": "Test Podcast"},
     }
 
-    with patch("main.get_episodes", new_callable=AsyncMock) as mock_get:
+    with patch("podcast_index.main.get_episodes", new_callable=AsyncMock) as mock_get:
         mock_get.return_value = mock_response
 
         arguments = {"id": 456}
@@ -708,7 +746,7 @@ async def test_get_episodes_tool_with_valid_id():
 @pytest.mark.asyncio
 async def test_get_episodes_tool_handles_http_errors():
     """get_episodes_tool should handle HTTP errors gracefully."""
-    with patch("main.get_episodes", new_callable=AsyncMock) as mock_get:
+    with patch("podcast_index.main.get_episodes", new_callable=AsyncMock) as mock_get:
         mock_get.side_effect = httpx.HTTPError("Network error")
 
         arguments = {"id": 456}
@@ -818,7 +856,9 @@ async def test_get_podcast_details_tool_with_valid_id():
         },
     }
 
-    with patch("main.get_podcast_details", new_callable=AsyncMock) as mock_get:
+    with patch(
+        "podcast_index.main.get_podcast_details", new_callable=AsyncMock
+    ) as mock_get:
         mock_get.return_value = mock_response
 
         arguments = {"id": 920666}
@@ -833,7 +873,9 @@ async def test_get_podcast_details_tool_with_valid_id():
 @pytest.mark.asyncio
 async def test_get_podcast_details_tool_handles_http_errors():
     """get_podcast_details_tool should handle HTTP errors gracefully."""
-    with patch("main.get_podcast_details", new_callable=AsyncMock) as mock_get:
+    with patch(
+        "podcast_index.main.get_podcast_details", new_callable=AsyncMock
+    ) as mock_get:
         mock_get.side_effect = httpx.HTTPError("Network error")
 
         arguments = {"id": 123}
@@ -956,7 +998,9 @@ async def test_get_episode_details_tool_with_valid_id():
         },
     }
 
-    with patch("main.get_episode_details", new_callable=AsyncMock) as mock_get:
+    with patch(
+        "podcast_index.main.get_episode_details", new_callable=AsyncMock
+    ) as mock_get:
         mock_get.return_value = mock_response
 
         arguments = {"id": 16795090}
@@ -971,7 +1015,9 @@ async def test_get_episode_details_tool_with_valid_id():
 @pytest.mark.asyncio
 async def test_get_episode_details_tool_handles_http_errors():
     """get_episode_details_tool should handle HTTP errors gracefully."""
-    with patch("main.get_episode_details", new_callable=AsyncMock) as mock_get:
+    with patch(
+        "podcast_index.main.get_episode_details", new_callable=AsyncMock
+    ) as mock_get:
         mock_get.side_effect = httpx.HTTPError("Network error")
 
         arguments = {"id": 123}
