@@ -213,14 +213,9 @@ async def test_search_podcasts_handles_unauthorized():
 
     mock_client = AsyncMock()
 
-
     mock_client.get.return_value = mock_response
 
-
-
     with patch("podcast_index.client.get_client", return_value=mock_client):
-
-
         with pytest.raises(httpx.HTTPStatusError):
             await search_podcasts(api_key, api_secret, params)
 
@@ -246,14 +241,9 @@ async def test_search_podcasts_with_empty_results():
 
     mock_client = AsyncMock()
 
-
     mock_client.get.return_value = mock_response
 
-
-
     with patch("podcast_index.client.get_client", return_value=mock_client):
-
-
         result = await search_podcasts(api_key, api_secret, params)
 
         assert result["count"] == 0
@@ -273,14 +263,9 @@ async def test_search_podcasts_handles_malformed_json():
 
     mock_client = AsyncMock()
 
-
     mock_client.get.return_value = mock_response
 
-
-
     with patch("podcast_index.client.get_client", return_value=mock_client):
-
-
         with pytest.raises(ValueError):
             await search_podcasts(api_key, api_secret, params)
 
@@ -374,14 +359,9 @@ async def test_search_podcasts_by_title_makes_request_with_auth_headers():
 
     mock_client = AsyncMock()
 
-
     mock_client.get.return_value = mock_response
 
-
-
     with patch("podcast_index.client.get_client", return_value=mock_client):
-
-
         await search_podcasts_by_title(api_key, api_secret, params)
 
         mock_client.get.assert_called_once()
@@ -422,14 +402,9 @@ async def test_search_podcasts_by_title_returns_successful_response():
 
     mock_client = AsyncMock()
 
-
     mock_client.get.return_value = mock_response
 
-
-
     with patch("podcast_index.client.get_client", return_value=mock_client):
-
-
         result = await search_podcasts_by_title(api_key, api_secret, params)
 
         assert result == expected_response
@@ -446,14 +421,9 @@ async def test_search_podcasts_by_title_handles_http_errors():
 
     mock_client = AsyncMock()
 
-
     mock_client.get.side_effect = httpx.HTTPError("Network error")
 
-
-
     with patch("podcast_index.client.get_client", return_value=mock_client):
-
-
         with pytest.raises(httpx.HTTPError):
             await search_podcasts_by_title(api_key, api_secret, params)
 
@@ -479,14 +449,9 @@ async def test_search_podcasts_by_title_with_empty_results():
 
     mock_client = AsyncMock()
 
-
     mock_client.get.return_value = mock_response
 
-
-
     with patch("podcast_index.client.get_client", return_value=mock_client):
-
-
         result = await search_podcasts_by_title(api_key, api_secret, params)
 
         assert result["count"] == 0
@@ -560,14 +525,9 @@ async def test_search_episodes_by_person_makes_request_with_auth_headers():
 
     mock_client = AsyncMock()
 
-
     mock_client.get.return_value = mock_response
 
-
-
     with patch("podcast_index.client.get_client", return_value=mock_client):
-
-
         await search_episodes_by_person(api_key, api_secret, params)
 
         mock_client.get.assert_called_once()
@@ -608,14 +568,9 @@ async def test_search_episodes_by_person_returns_successful_response():
 
     mock_client = AsyncMock()
 
-
     mock_client.get.return_value = mock_response
 
-
-
     with patch("podcast_index.client.get_client", return_value=mock_client):
-
-
         result = await search_episodes_by_person(api_key, api_secret, params)
 
         assert result == expected_response
@@ -632,14 +587,9 @@ async def test_search_episodes_by_person_handles_http_errors():
 
     mock_client = AsyncMock()
 
-
     mock_client.get.side_effect = httpx.HTTPError("Network error")
 
-
-
     with patch("podcast_index.client.get_client", return_value=mock_client):
-
-
         with pytest.raises(httpx.HTTPError):
             await search_episodes_by_person(api_key, api_secret, params)
 
@@ -665,14 +615,9 @@ async def test_search_episodes_by_person_with_empty_results():
 
     mock_client = AsyncMock()
 
-
     mock_client.get.return_value = mock_response
 
-
-
     with patch("podcast_index.client.get_client", return_value=mock_client):
-
-
         result = await search_episodes_by_person(api_key, api_secret, params)
 
         assert result["count"] == 0
@@ -727,14 +672,9 @@ async def test_get_episodes_returns_successful_response():
 
     mock_client = AsyncMock()
 
-
     mock_client.get.return_value = mock_response
 
-
-
     with patch("podcast_index.client.get_client", return_value=mock_client):
-
-
         result = await get_episodes(api_key, api_secret, params)
 
         assert result == expected_response
@@ -750,14 +690,9 @@ async def test_get_episodes_handles_http_errors():
 
     mock_client = AsyncMock()
 
-
     mock_client.get.side_effect = httpx.HTTPError("Network error")
 
-
-
     with patch("podcast_index.client.get_client", return_value=mock_client):
-
-
         with pytest.raises(httpx.HTTPError):
             await get_episodes(api_key, api_secret, params)
 
@@ -795,14 +730,9 @@ async def test_get_podcast_details_returns_successful_response():
 
     mock_client = AsyncMock()
 
-
     mock_client.get.return_value = mock_response
 
-
-
     with patch("podcast_index.client.get_client", return_value=mock_client):
-
-
         result = await get_podcast_details(api_key, api_secret, params)
 
         assert result == expected_response
@@ -818,14 +748,9 @@ async def test_get_podcast_details_handles_http_errors():
 
     mock_client = AsyncMock()
 
-
     mock_client.get.side_effect = httpx.HTTPError("Network error")
 
-
-
     with patch("podcast_index.client.get_client", return_value=mock_client):
-
-
         with pytest.raises(httpx.HTTPError):
             await get_podcast_details(api_key, api_secret, params)
 
@@ -873,14 +798,9 @@ async def test_get_episode_details_returns_successful_response():
 
     mock_client = AsyncMock()
 
-
     mock_client.get.return_value = mock_response
 
-
-
     with patch("podcast_index.client.get_client", return_value=mock_client):
-
-
         result = await get_episode_details(api_key, api_secret, params)
 
         assert result == expected_response
@@ -896,13 +816,8 @@ async def test_get_episode_details_handles_http_errors():
 
     mock_client = AsyncMock()
 
-
     mock_client.get.side_effect = httpx.HTTPError("Network error")
 
-
-
     with patch("podcast_index.client.get_client", return_value=mock_client):
-
-
         with pytest.raises(httpx.HTTPError):
             await get_episode_details(api_key, api_secret, params)

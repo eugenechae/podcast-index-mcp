@@ -3,11 +3,15 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Development Environment
-- Python version: 3.10.11
+- Python version: 3.10 or higher
 - Package manager: uv
 - Install dependencies: `uv sync` or `uv add <package>`
-- **Project Type**: Local development project - NOT a distributable package
-- **No packaging/building**: Do not add build systems, entry points, or package configuration to pyproject.toml
+- **Project Type**: Distributable MCP server supporting multiple installation methods
+- **Packaging approach**: Lightweight packaging with hatchling build backend for distribution
+  - Entry point: `podcast-index-mcp` command defined in `[project.scripts]`
+  - Package enabled with `[tool.uv] package = true`
+  - Supports: uvx (recommended), pipx, and local development installation
+  - Keep it simple: DO NOT add setuptools, poetry, or complex packaging configuration beyond current hatchling setup
 
 ## Key Design Patterns
 - **Functional style**: Pure functions return results rather than performing side effects
@@ -37,7 +41,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - Does documentation match implementation for security-critical features?
 
 ## Commands
-- Run application: `uv run python src/main.py`
+- Run application (development): `uv run python -m podcast_index.main` or `uv run podcast-index-mcp`
 - Run tests: `uv run pytest -n auto`
 - Type check: `uv run pyrefly check`
 - Lint code: `uv run ruff check .`

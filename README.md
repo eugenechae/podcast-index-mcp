@@ -13,11 +13,44 @@ An MCP (Model Context Protocol) server that provides access to the [Podcast Inde
 
 ## Prerequisites
 
-- Python 3.10.11 or higher
-- [uv](https://docs.astral.sh/uv/) package manager
+- Python 3.10 or higher
 - Podcast Index API credentials ([sign up here](https://api.podcastindex.org/signup))
 
 ## Installation
+
+Choose the installation method that best fits your needs:
+
+### Option 1: Quick Start with uvx (Recommended)
+
+The fastest way to get started. No need to clone the repository:
+
+```bash
+uvx --from git+https://github.com/eugenechae/podcast-index-mcp podcast-index-mcp
+```
+
+**Pros**: One command install, automatic updates, no path configuration needed
+
+**Requirements**: [uv](https://docs.astral.sh/uv/) package manager
+
+### Option 2: Install with pipx
+
+Install as a standalone tool using pipx:
+
+```bash
+pipx install git+https://github.com/eugenechae/podcast-index-mcp.git
+```
+
+**Pros**: Isolated environment, familiar to Python users, persistent installation
+
+**Requirements**: [pipx](https://pipx.pypa.io/) (install with `pip install pipx`)
+
+**To update**: `pipx upgrade podcast-index-mcp`
+
+**To uninstall**: `pipx uninstall podcast-index-mcp`
+
+### Option 3: Development Installation
+
+For contributing or local development:
 
 1. Clone the repository:
 ```bash
@@ -30,26 +63,30 @@ cd podcast-index-mcp
 uv sync
 ```
 
+**Pros**: Full control, easy to modify and contribute
+
+**Requirements**: [uv](https://docs.astral.sh/uv/) package manager
+
 ## Configuration
 
 ### Claude Desktop Setup
 
-To use this MCP server with Claude Desktop, add the following to your Claude Desktop configuration file:
+The configuration depends on your installation method. Add the appropriate configuration to your Claude Desktop configuration file:
 
 **MacOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+
+#### For uvx Installation (Option 1)
 
 ```json
 {
   "mcpServers": {
     "podcast-index": {
-      "command": "uv",
+      "command": "uvx",
       "args": [
-        "--directory",
-        "/absolute/path/to/podcast-index-mcp",
-        "run",
-        "python",
-        "src/main.py"
+        "--from",
+        "git+https://github.com/eugenechae/podcast-index-mcp",
+        "podcast-index-mcp"
       ],
       "env": {
         "PODCAST_INDEX_API_KEY": "your-api-key-here",
@@ -60,13 +97,55 @@ To use this MCP server with Claude Desktop, add the following to your Claude Des
 }
 ```
 
-**Important configuration notes:**
+**Note**: No path configuration needed! uvx handles everything automatically.
 
-1. **Get the absolute path** to this repository:
+#### For pipx Installation (Option 2)
+
+```json
+{
+  "mcpServers": {
+    "podcast-index": {
+      "command": "podcast-index-mcp",
+      "env": {
+        "PODCAST_INDEX_API_KEY": "your-api-key-here",
+        "PODCAST_INDEX_API_SECRET": "your-api-secret-here"
+      }
+    }
+  }
+}
+```
+
+**Note**: The `podcast-index-mcp` command is available in your PATH after pipx installation.
+
+#### For Development Installation (Option 3)
+
+```json
+{
+  "mcpServers": {
+    "podcast-index": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/absolute/path/to/podcast-index-mcp",
+        "run",
+        "podcast-index-mcp"
+      ],
+      "env": {
+        "PODCAST_INDEX_API_KEY": "your-api-key-here",
+        "PODCAST_INDEX_API_SECRET": "your-api-secret-here"
+      }
+    }
+  }
+}
+```
+
+**Important notes for development installation:**
+
+1. **Get the absolute path** to the repository:
    - **MacOS/Linux**: Run `pwd` in the repository directory
    - **Windows**: Run `cd` in the repository directory
 
-2. **Windows users**: Use double backslashes (`\\`) or forward slashes (`/`) in the path:
+2. **Windows users**: Use double backslashes (`\\`) or forward slashes (`/`) in paths:
    ```
    "C:\\Users\\YourName\\podcast-index-mcp"
    ```
@@ -79,7 +158,9 @@ To use this MCP server with Claude Desktop, add the following to your Claude Des
    - Find it with: `which uv` (MacOS/Linux) or `where uv` (Windows)
    - Example: `"command": "/Users/yourname/.local/bin/uv"`
 
-Replace `/absolute/path/to/podcast-index-mcp` with your actual repository path and add your API credentials.
+### API Credentials
+
+Replace `your-api-key-here` and `your-api-secret-here` with your actual Podcast Index API credentials. You can obtain these by [signing up here](https://api.podcastindex.org/signup).
 
 ## Usage
 
@@ -256,12 +337,19 @@ uv run ruff format .
 
 ### Running the Server Locally
 
+For development installations (Option 3), you can run the server directly:
+
 ```bash
-# Run the MCP server
-uv run python src/main.py
+# Run via Python module
+uv run python -m podcast_index.main
+
+# Or use the entry point command
+uv run podcast-index-mcp
 ```
 
 The server uses stdio transport and communicates via the MCP protocol.
+
+For uvx or pipx installations, the server runs automatically when configured in Claude Desktop - no need to run it manually.
 
 ## API Documentation
 
