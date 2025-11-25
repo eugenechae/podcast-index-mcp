@@ -28,4 +28,4 @@ RUN uv sync --frozen --no-dev
 ENV PATH="/app/.venv/bin:$PATH"
 
 # Reset the entrypoint, don't invoke `uv`
-ENTRYPOINT ["uv", "run", "python", "src/main.py"]
+ENTRYPOINT ["uv", "run", "python", "-m", "podcast_index.main"]
