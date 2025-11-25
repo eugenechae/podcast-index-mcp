@@ -14,6 +14,7 @@ An MCP (Model Context Protocol) server that provides access to the [Podcast Inde
 ## Prerequisites
 
 - Python 3.10 or higher
+- [uv](https://docs.astral.sh/uv/) package manager
 - Podcast Index API credentials ([sign up here](https://api.podcastindex.org/signup))
 
 ## Installation
@@ -161,6 +162,37 @@ The configuration depends on your installation method. Add the appropriate confi
 ### API Credentials
 
 Replace `your-api-key-here` and `your-api-secret-here` with your actual Podcast Index API credentials. You can obtain these by [signing up here](https://api.podcastindex.org/signup).
+
+
+## Docker Setup
+
+Alternatively, you can run the server using Docker to isolate dependencies.
+
+1. **Build the Docker image**:
+   ```bash
+   docker build -t podcast-index-mcp .
+   ```
+
+2. **Configure Claude Desktop**:
+   Update your `claude_desktop_config.json` to run the Docker container:
+
+   ```json
+   {
+     "mcpServers": {
+       "podcast-index": {
+         "command": "docker",
+         "args": [
+           "run",
+           "-i",
+           "--rm",
+           "-e", "PODCAST_INDEX_API_KEY=your-api-key-here",
+           "-e", "PODCAST_INDEX_API_SECRET=your-api-secret-here",
+           "podcast-index-mcp"
+         ]
+       }
+     }
+   }
+   ```
 
 ## Usage
 
